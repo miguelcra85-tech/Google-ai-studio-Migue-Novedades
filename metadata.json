@@ -1,0 +1,8 @@
+{
+  "name": "NovaAI Landing Page",
+  "description": "A dark cinematic AI marketing site featuring a full-viewport scroll-scrubbed video background, frosted glass UI chips, and sparse editorial layout.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
