@@ -7,7 +7,7 @@ import { animate } from 'motion';
 })
 export class WobbleDirective implements OnDestroy {
   private el = inject(ElementRef);
-  private animation: any = null;
+  private animation: { stop: () => void } | null = null;
 
   @HostListener('mouseenter')
   onMouseEnter() {
