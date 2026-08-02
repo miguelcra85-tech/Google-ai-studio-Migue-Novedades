@@ -17,12 +17,43 @@
       <a href="#contacto" class="text-sm text-white/85 hover:text-white transition-colors duration-300" appReveal="400">Contacto</a>
     </div>
 
-    <div appReveal="500">
-      <a href="https://gemini.google.com/gem/1FtdAaFBJ-0u-CtlhCc7XNDNbt2cvElsx?usp=sharing" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center rounded-md border border-white/30 bg-transparent shadow-[inset_0_0_10px_rgba(255,255,255,0.1)] px-4 py-2 text-xs sm:px-5 sm:text-sm font-medium text-white hover:shadow-[inset_0_0_15px_rgba(255,255,255,0.2)] transition-all duration-300">
+    <div class="flex items-center gap-3">
+      <div appReveal="500">
+        <a href="https://gemini.google.com/gem/1FtdAaFBJ-0u-CtlhCc7XNDNbt2cvElsx?usp=sharing" target="_blank" rel="noopener noreferrer" class="hidden sm:inline-flex items-center justify-center rounded-md border border-white/30 bg-transparent shadow-[inset_0_0_10px_rgba(255,255,255,0.1)] px-4 py-2 text-xs sm:px-5 sm:text-sm font-medium text-white hover:shadow-[inset_0_0_15px_rgba(255,255,255,0.2)] transition-all duration-300">
+          Obtén una Consulta Gratuita
+        </a>
+      </div>
+      
+      <!-- Mobile Menu Button -->
+      <button 
+        (click)="toggleMobileMenu()" 
+        class="md:hidden flex items-center justify-center rounded-md border border-white/20 bg-white/5 p-2 text-white hover:bg-white/10 transition-colors"
+        aria-label="Toggle menu"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu">
+          @if (isMobileMenuOpen()) {
+            <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+          } @else {
+            <line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/>
+          }
+        </svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu Dropdown -->
+  @if (isMobileMenuOpen()) {
+    <div class="fixed inset-x-0 top-[73px] z-40 md:hidden flex flex-col gap-5 border-b border-white/15 bg-black/80 p-6 backdrop-blur-xl shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300">
+      <a href="#proyectos" (click)="toggleMobileMenu()" class="text-sm font-medium text-white/90 hover:text-white transition-colors">Proyectos <sup class="font-mono text-[10px] text-white/60">6</sup></a>
+      <a href="#nosotros" (click)="toggleMobileMenu()" class="text-sm font-medium text-white/90 hover:text-white transition-colors">Nosotros</a>
+      <a href="#blog" (click)="toggleMobileMenu()" class="text-sm font-medium text-white/90 hover:text-white transition-colors">Blog</a>
+      <a href="#contacto" (click)="toggleMobileMenu()" class="text-sm font-medium text-white/90 hover:text-white transition-colors">Contacto</a>
+      
+      <a href="https://gemini.google.com/gem/1FtdAaFBJ-0u-CtlhCc7XNDNbt2cvElsx?usp=sharing" target="_blank" rel="noopener noreferrer" (click)="toggleMobileMenu()" class="mt-2 sm:hidden inline-flex items-center justify-center rounded-md border border-white/30 bg-white/10 px-4 py-2.5 text-xs font-medium text-white hover:bg-white/20 transition-all duration-300 text-center w-full">
         Obtén una Consulta Gratuita
       </a>
     </div>
-  </nav>
+  }
 
   <main>
     <!-- Section One -->
