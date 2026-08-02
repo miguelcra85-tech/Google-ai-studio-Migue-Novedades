@@ -32,7 +32,7 @@ jobs:
         
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Build project
         # Configuramos la ruta base para que funcione en GitHub Pages (username.github.io/repo-name)
