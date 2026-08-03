@@ -95,8 +95,18 @@
       </div>
     </section>
 
-    <!-- Mid spacer -->
-    <div class="h-[80vh]" aria-hidden="true"></div>
+    <!-- Mid spacer / Middle section with Iris Video on the right side -->
+    <div class="min-h-[70vh] flex items-center justify-center lg:justify-end px-5 sm:px-8 md:px-12 py-12">
+      <div id="contacto" appReveal="200" class="flex flex-col items-center lg:items-end gap-3">
+        <a href="https://wa.me/525583335581" target="_blank" rel="noopener noreferrer" appWobble aria-label="Contacto por WhatsApp" class="w-56 h-56 sm:w-64 sm:h-64 lg:w-80 lg:h-80 rounded-full border border-white/30 bg-transparent overflow-hidden relative flex items-center justify-center p-0 cursor-pointer shadow-[inset_0_0_30px_rgba(255,255,255,0.2),0_0_15px_rgba(255,255,255,0.05)] block transition-transform duration-300 hover:scale-105 animate-float">
+          <video 
+            src="https://res.cloudinary.com/hw31kdln/video/upload/v1785731505/iris-animacion_oywnro.mp4"
+            class="w-full h-full object-cover mix-blend-screen opacity-100 pointer-events-none"
+            autoplay loop muted playsinline>
+          </video>
+        </a>
+      </div>
+    </div>
 
     <!-- Section Two -->
     <section class="min-h-screen supports-[height:100svh]:min-h-[100svh] flex flex-col justify-between px-5 sm:px-8 md:px-12 pt-24 sm:pt-28 pb-12 md:pb-16">
@@ -182,35 +192,15 @@
     </section>
     <!-- New Section: Migue Strategy B2B -->
     <section class="min-h-screen supports-[height:100svh]:min-h-[100svh] flex flex-col justify-center items-center px-5 sm:px-8 md:px-12 py-24 relative">
-      <div class="w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center lg:items-stretch gap-12 lg:gap-16">
+      <div class="w-full max-w-5xl mx-auto flex flex-col items-center justify-center text-center gap-10">
         
-        <!-- Left Column: Videos -->
-        <div class="w-full lg:w-5/12 flex flex-col items-center lg:items-start justify-center gap-10" appReveal="150">
-          
-          <!-- Iris Eye Video -->
-          <div id="contacto" class="animate-float flex justify-center lg:justify-start w-full">
-            <a href="https://wa.me/525583335581" target="_blank" rel="noopener noreferrer" appWobble class="w-64 h-64 sm:w-72 sm:h-72 lg:w-80 lg:h-80 rounded-full border border-white/30 bg-transparent overflow-hidden relative flex items-center justify-center p-0 cursor-pointer shadow-[inset_0_0_30px_rgba(255,255,255,0.2),0_0_15px_rgba(255,255,255,0.05)] block transition-transform duration-300">
-              <video> 
-                src="https://res.cloudinary.com/hw31kdln/video/upload/v1/iris-animacion.mp4" 
-                class="w-full h-full object-cover opacity-100 pointer-events-none" 
-                autoplay loop muted playsinline preload="auto">
-              </video>
-            </a>
-          </div> 
-          
-        </div>
-        
-        <!-- Right Column: Text and Robot Video -->
-        <div class="w-full lg:w-7/12 flex flex-col items-center lg:items-start justify-center text-center lg:text-left gap-10" appReveal="450">
-           <p id="nosotros" class="text-2xl sm:text-3xl md:text-4xl font-medium leading-[1.3] tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-white via-white/90 to-white/40 drop-shadow-xl filter blur-[0.3px] hover:blur-0 transition-all duration-700">
-              Migue Strategy impulsa negocios B2B con agentes de IA inteligentes, creando conexiones humanas, confianza duradera y resultados que transforman prospectos en clientes activos.
-           </p>
-           
-           <!-- Expandable Robot Video -->
-           <div class="flex flex-col gap-3" appReveal="550">
-             <span class="font-mono text-[10px] uppercase tracking-[0.15em] text-white/50 text-center lg:text-left">Interactúa para descubrir</span>
-             <app-expandable-robot-video></app-expandable-robot-video>
-           </div>
+        <p id="nosotros" appReveal="300" class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-medium leading-[1.3] tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-white via-white/90 to-white/40 drop-shadow-xl filter blur-[0.3px] hover:blur-0 transition-all duration-700 max-w-4xl">
+           Migue Strategy impulsa negocios B2B con agentes de IA inteligentes, creando conexiones humanas, confianza duradera y resultados que transforman prospectos en clientes activos.
+        </p>
+
+        <div class="flex flex-col gap-3 items-center" appReveal="400">
+          <span class="font-mono text-[10px] uppercase tracking-[0.15em] text-white/50">Interactúa para descubrir</span>
+          <app-expandable-robot-video></app-expandable-robot-video>
         </div>
         
       </div>
