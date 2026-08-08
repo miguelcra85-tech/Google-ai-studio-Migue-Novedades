@@ -93,7 +93,7 @@
 
       <div class="flex items-center gap-3">
         <div data-reveal="500">
-          <a href="https://gemini.google.com/gem/1FtdAaFBJ-0u-CtlhCc7XNDNbt2cvElsx?usp=sharing" target="_blank" rel="noopener noreferrer" class="hidden sm:inline-flex items-center justify-center rounded-md border border-white/30 bg-transparent shadow-[inset_0_0_10px_rgba(255,255,255,0.1)] px-4 py-2 text-xs sm:px-5 sm:text-sm font-medium text-white hover:shadow-[inset_0_0_15px_rgba(255,255,255,0.2)] transition-all duration-300">
+          <a href="javascript:void(0)" onclick="openTypebot(event)" class="hidden sm:inline-flex items-center justify-center rounded-md border border-white/30 bg-transparent shadow-[inset_0_0_10px_rgba(255,255,255,0.1)] px-4 py-2 text-xs sm:px-5 sm:text-sm font-medium text-white hover:shadow-[inset_0_0_15px_rgba(255,255,255,0.2)] transition-all duration-300">
             Obtén una Consulta Gratuita
           </a>
         </div>
@@ -121,7 +121,7 @@
       <a href="#blog" class="text-sm font-medium text-white/90 hover:text-white transition-colors">Blog</a>
       <a href="#contacto" class="text-sm font-medium text-white/90 hover:text-white transition-colors">Contacto</a>
       
-      <a href="https://gemini.google.com/gem/1FtdAaFBJ-0u-CtlhCc7XNDNbt2cvElsx?usp=sharing" target="_blank" rel="noopener noreferrer" class="mt-2 sm:hidden inline-flex items-center justify-center rounded-md border border-white/30 bg-white/10 px-4 py-2.5 text-xs font-medium text-white hover:bg-white/20 transition-all duration-300 text-center w-full">
+      <a href="javascript:void(0)" onclick="openTypebot(event)" class="mt-2 sm:hidden inline-flex items-center justify-center rounded-md border border-white/30 bg-white/10 px-4 py-2.5 text-xs font-medium text-white hover:bg-white/20 transition-all duration-300 text-center w-full">
         Obtén una Consulta Gratuita
       </a>
     </div>
@@ -157,7 +157,7 @@
             <div class="flex flex-col gap-1.5 pr-2">
               <div class="text-sm font-medium text-white">Habla con Miguel</div>
               <div class="font-mono text-[10px] uppercase tracking-[0.15em] text-white/60">CEO de Migue Strategy</div>
-              <a href="https://gemini.google.com/gem/1FtdAaFBJ-0u-CtlhCc7XNDNbt2cvElsx?usp=sharing" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-1.5 rounded-full bg-white px-4 py-2 text-xs font-medium text-black hover:bg-white/85 transition-colors duration-300 mt-1.5 self-start shadow-md">
+              <a href="javascript:void(0)" onclick="openTypebot(event)" class="inline-flex items-center justify-center gap-1.5 rounded-full bg-white px-4 py-2 text-xs font-medium text-black hover:bg-white/85 transition-colors duration-300 mt-1.5 self-start shadow-md">
                 Agenda llamada de 15 min
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
               </a>
@@ -207,7 +207,7 @@
                   Ver demostración
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
                 </a>
-                <a href="https://gemini.google.com/gem/1FtdAaFBJ-0u-CtlhCc7XNDNbt2cvElsx?usp=sharing" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center rounded-full border border-white/30 bg-transparent shadow-[inset_0_0_15px_rgba(255,255,255,0.1)] px-5 py-2.5 text-xs sm:text-sm text-white hover:shadow-[inset_0_0_25px_rgba(255,255,255,0.2)] transition-all duration-300">
+                <a href="javascript:void(0)" onclick="openTypebot(event)" class="inline-flex items-center justify-center rounded-full border border-white/30 bg-transparent shadow-[inset_0_0_15px_rgba(255,255,255,0.1)] px-5 py-2.5 text-xs sm:text-sm text-white hover:shadow-[inset_0_0_25px_rgba(255,255,255,0.2)] transition-all duration-300">
                   Consulta gratuita
                 </a>
               </div>
@@ -572,6 +572,47 @@
         el.classList.add('transition-transform', 'duration-300', 'hover:scale-105');
       });
     })();
+  </script>
+
+  <!-- Typebot Chatbot -->
+  <script type="module">
+    import Typebot from 'https://cdn.jsdelivr.net/npm/@typebot.io/js@0/dist/web.js'
+
+    window.Typebot = Typebot;
+
+    const instance = Typebot.initBubble({
+      typebot: "lead-generation-14pfxu6",
+      previewMessage: { message: "I have a question for you!" },
+      theme: {
+        placement: "right",
+        button: {
+          backgroundColor: "#1D1D1D",
+          customIconSrc:
+            "https://s3.typebotstorage.com/public/workspaces/cmsj91idd00000ai1l144bags/typebots/pcgz6xaqcdhsj5qk414pfxu6/bubble-icon?v=1786146993938",
+        },
+      },
+    });
+
+    window.typebotInstance = instance;
+
+    window.openTypebot = function(e) {
+      if (e && e.preventDefault) e.preventDefault();
+      if (instance && typeof instance.open === 'function') {
+        instance.open();
+      } else if (Typebot && typeof Typebot.open === 'function') {
+        Typebot.open();
+      } else {
+        const bubbleEl = document.querySelector('typebot-bubble');
+        if (bubbleEl) {
+          if (bubbleEl.shadowRoot) {
+            const btn = bubbleEl.shadowRoot.querySelector('button');
+            if (btn) btn.click();
+          } else {
+            bubbleEl.click();
+          }
+        }
+      }
+    };
   </script>
 </body>
 </html>
