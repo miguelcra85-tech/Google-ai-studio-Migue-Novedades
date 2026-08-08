@@ -1,6 +1,6 @@
 {
-  "name": "NovaAI Landing Page",
-  "description": "A dark cinematic AI marketing site featuring a full-viewport scroll-scrubbed video background, frosted glass UI chips, and sparse editorial layout.",
+  "name": "Migue Strategy — Sitio Web Estático",
+  "description": "Sitio web estático puro (HTML5, CSS3 y Vanilla JavaScript) para Migue Strategy, optimizado para GitHub Pages.",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
