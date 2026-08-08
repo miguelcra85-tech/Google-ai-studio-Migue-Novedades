@@ -12,46 +12,5 @@
   </head>
   <body class="bg-[#0a0a0a] text-white font-sans antialiased selection:bg-white/20">
     <app-root></app-root>
-
-    <!-- Typebot Chatbot -->
-    <script type="module">
-      import Typebot from 'https://cdn.jsdelivr.net/npm/@typebot.io/js@0/dist/web.js'
-
-      window.Typebot = Typebot;
-
-      const instance = Typebot.initBubble({
-        typebot: "lead-generation-14pfxu6",
-        previewMessage: { message: "I have a question for you!" },
-        theme: {
-          placement: "right",
-          button: {
-            backgroundColor: "#1D1D1D",
-            customIconSrc:
-              "https://s3.typebotstorage.com/public/workspaces/cmsj91idd00000ai1l144bags/typebots/pcgz6xaqcdhsj5qk414pfxu6/bubble-icon?v=1786146993938",
-          },
-        },
-      });
-
-      window.typebotInstance = instance;
-
-      window.openTypebot = function(e) {
-        if (e && e.preventDefault) e.preventDefault();
-        if (instance && typeof instance.open === 'function') {
-          instance.open();
-        } else if (Typebot && typeof Typebot.open === 'function') {
-          Typebot.open();
-        } else {
-          const bubbleEl = document.querySelector('typebot-bubble');
-          if (bubbleEl) {
-            if (bubbleEl.shadowRoot) {
-              const btn = bubbleEl.shadowRoot.querySelector('button');
-              if (btn) btn.click();
-            } else {
-              bubbleEl.click();
-            }
-          }
-        }
-      };
-    </script>
   </body>
 </html>
