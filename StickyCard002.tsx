@@ -144,6 +144,9 @@ const StickyCard002 = ({
                   }}
                   src={card.image}
                   alt={card.alt || `Card ${i + 1}`}
+                  loading="lazy"
+                  width={600}
+                  height={400}
                   className={cn(
                     "w-full h-full object-contain max-h-[58vh] drop-shadow-2xl transition-transform duration-300 group-hover:scale-105",
                     imageClassName,
@@ -234,38 +237,38 @@ const Skiper17 = () => {
   const defaultCards: CardData[] = [
     {
       id: 1,
-      image: "/images/lummi/ecommece.webp",
-      alt: "E-Commerce Showcase",
+      image: "https://ik.imagekit.io/z3dmv3w9f/ecommece.webp",
+      alt: "E-commerce Showcase",
       buttonText: "Ver producto",
       buttonClassName: "neon-border-blue border-2 border-[#00f0ff] shadow-[0_0_15px_rgba(0,240,255,0.65),inset_0_0_8px_rgba(0,240,255,0.25)] hover:shadow-[0_0_25px_rgba(0,240,255,0.9),inset_0_0_12px_rgba(0,240,255,0.4)]",
     },
     {
       id: 2,
-      image: "/images/lummi/amazon.webp",
-      alt: "Dulces & Confectionery Showcase",
+      image: "https://ik.imagekit.io/z3dmv3w9f/amazon.webp",
+      alt: "Amazon Product",
       buttonText: "Explorar",
       buttonClassName: "neon-border-pink border-2 border-[#ff2d92] shadow-[0_0_15px_rgba(255,45,146,0.65),inset_0_0_8px_rgba(255,45,146,0.25)] hover:shadow-[0_0_25px_rgba(255,45,146,0.9),inset_0_0_12px_rgba(255,45,146,0.4)]",
     },
     {
       id: 3,
-      image: "/images/lummi/tenis.webp",
-      alt: "Retail & Tenis Showcase",
+      image: "https://ik.imagekit.io/z3dmv3w9f/tenis.webp",
+      alt: "Tenis deportivos",
       buttonText: "Comprar ahora",
       href: "https://sneakersgame.netlify.app/",
       buttonClassName: "neon-border-orange border-2 border-[#ff7a00] shadow-[0_0_15px_rgba(255,122,0,0.65),inset_0_0_8px_rgba(255,122,0,0.25)] hover:shadow-[0_0_25px_rgba(255,122,0,0.9),inset_0_0_12px_rgba(255,122,0,0.4)]",
     },
     {
       id: 4,
-      image: "/images/lummi/mercado.webp",
-      alt: "Ropa & Moda Showcase",
+      image: "https://ik.imagekit.io/z3dmv3w9f/mercado.webp",
+      alt: "Mercado Online",
       buttonText: "Explorar",
       href: "https://ventaschamarras.netlify.app/",
       buttonClassName: "neon-border-yellow border-2 border-[#ffe600] shadow-[0_0_15px_rgba(255,230,0,0.65),inset_0_0_8px_rgba(255,230,0,0.25)] hover:shadow-[0_0_25px_rgba(255,230,0,0.9),inset_0_0_12px_rgba(255,230,0,0.4)]",
     },
     {
       id: 5,
-      image: "/images/lummi/mocktail.webp",
-      alt: "Mocktail Showcase",
+      image: "https://ik.imagekit.io/z3dmv3w9f/mocktail.webp",
+      alt: "Mocktail refrescante",
       buttonText: "Ver detalles",
       href: "https://miguelcra85-tech.github.io/NaranGo/",
       buttonClassName: "neon-border-purple border-2 border-[#b026ff] shadow-[0_0_15px_rgba(176,38,255,0.65),inset_0_0_8px_rgba(176,38,255,0.25)] hover:shadow-[0_0_25px_rgba(176,38,255,0.9),inset_0_0_12px_rgba(176,38,255,0.4)]",

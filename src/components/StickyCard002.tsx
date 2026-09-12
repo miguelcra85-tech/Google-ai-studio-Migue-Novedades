@@ -116,6 +116,9 @@ const StickyCard002 = ({
               key={card.id}
               src={card.image}
               alt={card.alt || ""}
+              loading="lazy"
+              width={600}
+              height={400}
               className={cn(
                 "rounded-4xl absolute h-full w-full object-cover",
                 imageClassName,
@@ -136,23 +139,28 @@ const Skiper17 = () => {
   const defaultCards = [
     {
       id: 1,
-      image: "/images/lummi/ecommece.webp",
+      image: "https://ik.imagekit.io/z3dmv3w9f/ecommece.webp",
+      alt: "E-commerce Showcase",
     },
     {
       id: 2,
-      image: "/images/lummi/amazon.webp",
+      image: "https://ik.imagekit.io/z3dmv3w9f/amazon.webp",
+      alt: "Amazon Product",
     },
     {
       id: 3,
-      image: "/images/lummi/tenis.webp",
+      image: "https://ik.imagekit.io/z3dmv3w9f/tenis.webp",
+      alt: "Tenis deportivos",
     },
     {
       id: 4,
-      image: "/images/lummi/mercado.webp",
+      image: "https://ik.imagekit.io/z3dmv3w9f/mercado.webp",
+      alt: "Mercado Online",
     },
     {
       id: 5,
-      image: "/images/lummi/mocktail.webp",
+      image: "https://ik.imagekit.io/z3dmv3w9f/mocktail.webp",
+      alt: "Mocktail refrescante",
     },
   ];
 

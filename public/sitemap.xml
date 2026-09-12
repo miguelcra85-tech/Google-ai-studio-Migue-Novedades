@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://miguelcra85-tech.github.io/MigueStrategy/</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://ik.imagekit.io/z3dmv3w9f/ecommece.webp</image:loc>
+      <image:title>Plataforma de E-commerce Interactiva y Automatizada — Migue Strategy</image:title>
+      <image:caption>Soluciones de tiendas online con agentes de inteligencia artificial y optimización de conversión</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://ik.imagekit.io/z3dmv3w9f/amazon.webp</image:loc>
+      <image:title>Tienda Online de Dulces y Confitería — Migue Strategy</image:title>
+      <image:caption>Diseño y automatización e-commerce de alto impacto para marcas de consumo masivo</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://ik.imagekit.io/z3dmv3w9f/tenis.webp</image:loc>
+      <image:title>Sneakers Game — E-commerce Gamificado de Calzado Deportivo</image:title>
+      <image:caption>Experiencia de compra interactiva para retail de sneakers</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://ik.imagekit.io/z3dmv3w9f/mercado.webp</image:loc>
+      <image:title>Ventas Chamarras — Catálogo Online de Moda y Ropa de Invierno</image:title>
+      <image:caption>E-commerce de moda optimizado para conversión móvil y ticket promedio elevado</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://ik.imagekit.io/z3dmv3w9f/mocktail.webp</image:loc>
+      <image:title>NaranGo — Carta Digital Interactiva y E-commerce de Bebidas Mocktail</image:title>
+      <image:caption>Catálogo gourmet y experiencia digital para marcas gastronómicas</image:caption>
+    </image:image>
+  </url>
+</urlset>
