@@ -3,6 +3,154 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Google tag (gtag.js) - Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    // ID de medición de Google Analytics 4 (Reemplaza 'G-XXXXXXXXXX' por tu Measurement ID de GA4)
+    window.GA_MEASUREMENT_ID = window.GA_MEASUREMENT_ID || 'G-XXXXXXXXXX';
+    gtag('config', window.GA_MEASUREMENT_ID, {
+      send_page_view: true
+    });
+
+    // 1. Seguimiento de eventos personalizados para botones de llamada a la acción (CTAs)
+    window.trackCtaClick = function(ctaName, ctaLocation, ctaDestination) {
+      try {
+        if (typeof gtag === 'function') {
+          gtag('event', 'cta_click', {
+            event_category: 'call_to_action',
+            event_label: ctaName,
+            cta_name: ctaName,
+            cta_location: ctaLocation || 'general',
+            cta_destination: ctaDestination || 'none',
+            transport_type: 'beacon'
+          });
+        }
+      } catch (err) {
+        console.warn('[GA4] Error registrando CTA:', err);
+      }
+    };
+
+    // 2. Seguimiento de embudo y tasa de finalización de la consulta de Typebot
+    window.typebotTracking = {
+      isStarted: false,
+      isCompleted: false,
+      startTime: null,
+      stepCount: 0,
+
+      // Inicio de consulta (denominador de la tasa de finalización)
+      trackStart: function(triggerSource = 'button') {
+        if (this.isStarted) return;
+        this.isStarted = true;
+        this.startTime = Date.now();
+
+        try {
+          if (typeof gtag === 'function') {
+            gtag('event', 'typebot_consultation_start', {
+              event_category: 'typebot_funnel',
+              event_label: 'Inicio de Consulta Typebot',
+              typebot_id: 'lead-generation-14pfxu6',
+              trigger_source: triggerSource,
+              funnel_step: 1,
+              value: 1
+            });
+          }
+        } catch (err) {
+          console.warn('[GA4] Error registrando inicio de Typebot:', err);
+        }
+      },
+
+      // Avance o respuesta dentro de la consulta
+      trackStep: function(stepDetail) {
+        if (!this.isStarted) {
+          this.trackStart('first_interaction');
+        }
+        this.stepCount++;
+
+        try {
+          if (typeof gtag === 'function') {
+            gtag('event', 'typebot_interaction_step', {
+              event_category: 'typebot_funnel',
+              event_label: 'Interacción Paso ' + this.stepCount,
+              typebot_id: 'lead-generation-14pfxu6',
+              step_number: this.stepCount,
+              step_detail: typeof stepDetail === 'string' ? stepDetail : JSON.stringify(stepDetail || {})
+            });
+          }
+        } catch (err) {
+          console.warn('[GA4] Error registrando paso de Typebot:', err);
+        }
+      },
+
+      // Finalización de consulta exitosa (numerador de la tasa de finalización)
+      trackCompletion: function() {
+        if (this.isCompleted) return;
+        this.isCompleted = true;
+
+        const durationSeconds = this.startTime ? Math.round((Date.now() - this.startTime) / 1000) : 0;
+
+        try {
+          if (typeof gtag === 'function') {
+            // Evento de finalización de consulta Typebot
+            gtag('event', 'typebot_consultation_completed', {
+              event_category: 'typebot_funnel',
+              event_label: 'Consulta Typebot Finalizada Exitosamente',
+              typebot_id: 'lead-generation-14pfxu6',
+              total_steps: this.stepCount,
+              duration_seconds: durationSeconds,
+              value: 1
+            });
+
+            // Conversión recomendada por Google Analytics para leads completados
+            gtag('event', 'generate_lead', {
+              event_category: 'conversion',
+              event_label: 'Lead Generado desde Typebot',
+              currency: 'USD',
+              value: 1
+            });
+          }
+        } catch (err) {
+          console.warn('[GA4] Error registrando finalización de Typebot:', err);
+        }
+      }
+    };
+
+    // Escucha de mensajes postMessage de Typebot
+    window.addEventListener('message', function(event) {
+      if (!event.data) return;
+      const data = event.data;
+      if (
+        data === 'typebot:end' ||
+        data?.type === 'typebot:end' ||
+        data?.event === 'completed' ||
+        data?.status === 'completed' ||
+        data?.action === 'typebot_completed'
+      ) {
+        window.typebotTracking.trackCompletion();
+      } else if (
+        data === 'typebot:answer' ||
+        data?.type === 'typebot:answer' ||
+        data?.event === 'answer'
+      ) {
+        window.typebotTracking.trackStep(data);
+      }
+    });
+
+    // Delegación para rastreo de clics en la burbuja flotante de Typebot
+    document.addEventListener('DOMContentLoaded', function() {
+      document.body.addEventListener('click', function(e) {
+        const target = e.target.closest('typebot-bubble, [id*="typebot"], [class*="typebot"]');
+        if (target) {
+          window.typebotTracking.trackStart('floating_bubble');
+        }
+      }, true);
+    });
+  </script>
+
   <title>Migue Strategy — Automatización, Integración y Agentes IA</title>
   <link rel="icon" type="image/x-icon" href="https://res.cloudinary.com/hw31kdln/image/upload/v1785472879/Captura_de_pantalla_2026-07-27_153650_pgkxzy.png" />
   
@@ -45,11 +193,64 @@
     };
   </script>
 
+  <!-- GSAP & Lenis for Smooth Scroll and Sticky Card Deck -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.css" />
+
   <style>
     /* Custom Scrollbar & Utilities */
     body {
       background-color: #0a0a0a;
       color: #ffffff;
+    }
+    html.lenis, html.lenis body {
+      height: auto;
+    }
+    .lenis.lenis-smooth {
+      scroll-behavior: auto !important;
+    }
+
+    /* Neon button borders & glowing outlines */
+    .neon-border-blue {
+      border: 2px solid #00f0ff !important;
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.65), inset 0 0 8px rgba(0, 240, 255, 0.25) !important;
+    }
+    .neon-border-blue:hover {
+      box-shadow: 0 0 25px rgba(0, 240, 255, 0.9), inset 0 0 12px rgba(0, 240, 255, 0.4) !important;
+    }
+
+    .neon-border-pink {
+      border: 2px solid #ff2d92 !important;
+      box-shadow: 0 0 14px rgba(255, 45, 146, 0.65), inset 0 0 8px rgba(255, 45, 146, 0.25) !important;
+    }
+    .neon-border-pink:hover {
+      box-shadow: 0 0 25px rgba(255, 45, 146, 0.9), inset 0 0 12px rgba(255, 45, 146, 0.4) !important;
+    }
+
+    .neon-border-orange {
+      border: 2px solid #ff7a00 !important;
+      box-shadow: 0 0 14px rgba(255, 122, 0, 0.65), inset 0 0 8px rgba(255, 122, 0, 0.25) !important;
+    }
+    .neon-border-orange:hover {
+      box-shadow: 0 0 25px rgba(255, 122, 0, 0.9), inset 0 0 12px rgba(255, 122, 0, 0.4) !important;
+    }
+
+    .neon-border-yellow {
+      border: 2px solid #ffe600 !important;
+      box-shadow: 0 0 14px rgba(255, 230, 0, 0.65), inset 0 0 8px rgba(255, 230, 0, 0.25) !important;
+    }
+    .neon-border-yellow:hover {
+      box-shadow: 0 0 25px rgba(255, 230, 0, 0.9), inset 0 0 12px rgba(255, 230, 0, 0.4) !important;
+    }
+
+    .neon-border-purple {
+      border: 2px solid #b026ff !important;
+      box-shadow: 0 0 14px rgba(176, 38, 255, 0.65), inset 0 0 8px rgba(176, 38, 255, 0.25) !important;
+    }
+    .neon-border-purple:hover {
+      box-shadow: 0 0 25px rgba(176, 38, 255, 0.9), inset 0 0 12px rgba(176, 38, 255, 0.4) !important;
     }
   </style>
 </head>
@@ -93,7 +294,12 @@
 
       <div class="flex items-center gap-3">
         <div data-reveal="500">
-          <button onclick="openTypebot(event)" class="hidden sm:inline-flex items-center justify-center rounded-md border border-white/30 bg-transparent shadow-[inset_0_0_10px_rgba(255,255,255,0.1)] px-4 py-2 text-xs sm:px-5 sm:text-sm font-medium text-white hover:shadow-[inset_0_0_15px_rgba(255,255,255,0.2)] transition-all duration-300 cursor-pointer">
+          <button 
+            onclick="trackCtaClick('Obtén una Consulta Gratuita', 'header_navbar', 'typebot'); openTypebot(event, 'header_navbar')" 
+            data-ga-cta="Obtén una Consulta Gratuita" 
+            data-ga-location="header_navbar"
+            class="hidden sm:inline-flex items-center justify-center rounded-md border border-white/30 bg-transparent shadow-[inset_0_0_10px_rgba(255,255,255,0.1)] px-4 py-2 text-xs sm:px-5 sm:text-sm font-medium text-white hover:shadow-[inset_0_0_15px_rgba(255,255,255,0.2)] transition-all duration-300 cursor-pointer"
+          >
             Obtén una Consulta Gratuita
           </button>
         </div>
@@ -121,7 +327,12 @@
       <a href="#blog" class="text-sm font-medium text-white/90 hover:text-white transition-colors">Blog</a>
       <a href="#contacto" class="text-sm font-medium text-white/90 hover:text-white transition-colors">Contacto</a>
       
-      <button onclick="openTypebot(event); toggleMobileMenu()" class="mt-2 sm:hidden inline-flex items-center justify-center rounded-md border border-white/30 bg-white/10 px-4 py-2.5 text-xs font-medium text-white hover:bg-white/20 transition-all duration-300 text-center w-full cursor-pointer">
+      <button 
+        onclick="trackCtaClick('Obtén una Consulta Gratuita', 'mobile_menu', 'typebot'); openTypebot(event, 'mobile_menu'); toggleMobileMenu()" 
+        data-ga-cta="Obtén una Consulta Gratuita" 
+        data-ga-location="mobile_menu"
+        class="mt-2 sm:hidden inline-flex items-center justify-center rounded-md border border-white/30 bg-white/10 px-4 py-2.5 text-xs font-medium text-white hover:bg-white/20 transition-all duration-300 text-center w-full cursor-pointer"
+      >
         Obtén una Consulta Gratuita
       </button>
     </div>
@@ -129,27 +340,24 @@
     <main>
       <!-- Section One -->
       <section id="blog" class="min-h-screen supports-[height:100svh]:min-h-[100svh] flex flex-col justify-between px-5 sm:px-8 md:px-12 pt-24 sm:pt-28 pb-12 md:pb-16">
-        <div class="flex flex-col gap-8 sm:flex-row sm:justify-between w-full">
-          <div class="flex flex-col gap-2">
-            <div data-reveal="150" class="font-mono text-xs uppercase tracking-[0.15em] text-white/90 drop-shadow-md">/ AUTOMATIZACIÓN IA</div>
-            <div data-reveal="270" class="font-mono text-xs uppercase tracking-[0.15em] text-white/90 drop-shadow-md">/ INTEGRACIÓN IA</div>
-            <div data-reveal="390" class="font-mono text-xs uppercase tracking-[0.15em] text-white/90 drop-shadow-md">/ DESARROLLO DE AGENTES IA</div>
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start w-full gap-6">
+          <div class="max-w-md sm:max-w-lg text-left" data-reveal="150">
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-normal leading-tight tracking-tight text-white drop-shadow-lg">
+              Estrategia basada en el consumidor real
+            </h1>
           </div>
-          <div class="max-w-xs sm:text-right" data-reveal="300">
-            <p class="text-lg sm:text-xl leading-relaxed text-white drop-shadow-md">
+          <div class="max-w-xs sm:text-right hidden sm:block" data-reveal="300">
+            <p class="text-sm sm:text-base leading-relaxed text-white/85 drop-shadow-md">
               Diseñamos automatización que aporta claridad, precisión y eficiencia a la forma en que opera tu empresa.
             </p>
           </div>
         </div>
 
         <div class="flex flex-col gap-8 md:flex-row md:items-end md:justify-between w-full mt-12 md:mt-0">
-          <div>
-            <div data-reveal="150" class="border-l-2 border-white bg-transparent px-3 py-1.5 border-t border-r border-b border-white/20 shadow-[inset_10px_0_20px_rgba(255,255,255,0.05)] font-mono text-[11px] uppercase tracking-[0.15em] text-white mb-5 inline-block">
-              Automatizamos 100+ Negocios
-            </div>
-            <h1 data-reveal="280" class="text-5xl sm:text-6xl lg:text-7xl font-normal leading-[1.05] tracking-tight text-white drop-shadow-lg">
-              Claro. Preciso.<br>Automatizado.
-            </h1>
+          <div class="max-w-sm sm:max-w-md text-left" data-reveal="350">
+            <p class="text-sm sm:text-base leading-relaxed text-white/85 drop-shadow-md">
+              No diseñamos a ciegas. Cada elemento de esta interfaz se creó con estudio de mercado previo, garantizando que el diseño responda exactamente a los dolores, deseos y hábitos de compra de tu cliente ideal.
+            </p>
           </div>
 
           <div data-reveal="420" class="flex items-center gap-4 rounded-xl border border-white/30 bg-transparent p-3 shadow-[inset_0_0_20px_rgba(255,255,255,0.15)] w-full max-w-sm md:max-w-fit">
@@ -157,7 +365,12 @@
             <div class="flex flex-col gap-1.5 pr-2">
               <div class="text-sm font-medium text-white">Habla con Miguel</div>
               <div class="font-mono text-[10px] uppercase tracking-[0.15em] text-white/60">CEO de Migue Strategy</div>
-              <button onclick="openTypebot(event)" class="inline-flex items-center justify-center gap-1.5 rounded-full bg-white px-4 py-2 text-xs font-medium text-black hover:bg-white/85 transition-colors duration-300 mt-1.5 self-start shadow-md cursor-pointer">
+              <button 
+                onclick="trackCtaClick('Agenda llamada de 15 min', 'hero_miguel_card', 'typebot'); openTypebot(event, 'hero_miguel_card')" 
+                data-ga-cta="Agenda llamada de 15 min" 
+                data-ga-location="hero_miguel_card"
+                class="inline-flex items-center justify-center gap-1.5 rounded-full bg-white px-4 py-2 text-xs font-medium text-black hover:bg-white/85 transition-colors duration-300 mt-1.5 self-start shadow-md cursor-pointer"
+              >
                 Agenda llamada de 15 min
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
               </button>
@@ -166,10 +379,138 @@
         </div>
       </section>
 
+      <!-- StickyCard002 Carousel (Skiper 17) - GSAP + ScrollTrigger + Lenis -->
+      <section id="sticky-carousel" class="relative h-full w-full bg-transparent">
+        <div class="sticky-cards relative flex min-h-screen w-full items-center justify-center overflow-hidden p-3 lg:p-8 bg-transparent">
+          <div class="relative h-[85vh] w-full max-w-3xl lg:max-w-4xl flex items-center justify-center bg-transparent">
+            
+            <!-- Card 1: Ecommerce -->
+            <div class="sticky-card-item absolute inset-0 flex flex-col items-center justify-center pointer-events-auto">
+              <div class="relative group bg-transparent p-4 flex flex-col items-center">
+                <img
+                  src="/images/lummi/ecommece.webp"
+                  alt="E-commerce Showcase"
+                  class="w-full h-full object-contain max-h-[58vh] drop-shadow-2xl transition-transform duration-300 group-hover:scale-105"
+                />
+                <button 
+                  onclick="trackCtaClick('Ver producto - Ecommerce', 'sticky_card_ecommerce', 'typebot'); openTypebot(event, 'sticky_card_ecommerce')"
+                  data-ga-cta="Ver producto - Ecommerce"
+                  data-ga-location="sticky_card_ecommerce"
+                  class="mt-8 px-6 py-3 bg-white/90 hover:bg-white text-black font-semibold rounded-full shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-2 cursor-pointer neon-border-blue"
+                >
+                  <span>Ver producto</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Card 2: Dulces -->
+            <div class="sticky-card-item absolute inset-0 flex flex-col items-center justify-center pointer-events-auto">
+              <div class="relative group bg-transparent p-4 flex flex-col items-center">
+                <img
+                  src="/images/lummi/amazon.webp"
+                  alt="Dulces & Confectionery Showcase"
+                  class="w-full h-full object-contain max-h-[58vh] drop-shadow-2xl transition-transform duration-300 group-hover:scale-105"
+                />
+                <button 
+                  onclick="trackCtaClick('Explorar - Dulces', 'sticky_card_dulces', 'typebot'); openTypebot(event, 'sticky_card_dulces')"
+                  data-ga-cta="Explorar - Dulces"
+                  data-ga-location="sticky_card_dulces"
+                  class="mt-8 px-6 py-3 bg-white/90 hover:bg-white text-black font-semibold rounded-full shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-2 cursor-pointer neon-border-pink"
+                >
+                  <span>Explorar</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Card 3: Tenis -->
+            <div class="sticky-card-item absolute inset-0 flex flex-col items-center justify-center pointer-events-auto">
+              <div class="relative group bg-transparent p-4 flex flex-col items-center">
+                <img
+                  src="/images/lummi/tenis.webp"
+                  alt="Retail & Tenis Showcase"
+                  class="w-full h-full object-contain max-h-[58vh] drop-shadow-2xl transition-transform duration-300 group-hover:scale-105"
+                />
+                <a 
+                  href="https://sneakersgame.netlify.app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onclick="trackCtaClick('Comprar ahora - Tenis', 'sticky_card_tenis', 'https://sneakersgame.netlify.app/')"
+                  data-ga-cta="Comprar ahora - Tenis"
+                  data-ga-location="sticky_card_tenis"
+                  class="mt-8 px-6 py-3 bg-white/90 hover:bg-white text-black font-semibold rounded-full shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 active:scale-95 inline-flex items-center gap-2 cursor-pointer neon-border-orange"
+                >
+                  <span>Comprar ahora</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </a>
+              </div>
+            </div>
+
+            <!-- Card 4: Ropa -->
+            <div class="sticky-card-item absolute inset-0 flex flex-col items-center justify-center pointer-events-auto">
+              <div class="relative group bg-transparent p-4 flex flex-col items-center">
+                <img
+                  src="/images/lummi/mercado.webp"
+                  alt="Ropa & Moda Showcase"
+                  class="w-full h-full object-contain max-h-[58vh] drop-shadow-2xl transition-transform duration-300 group-hover:scale-105"
+                />
+                <a 
+                  href="https://ventaschamarras.netlify.app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onclick="trackCtaClick('Explorar - Ropa', 'sticky_card_ropa', 'https://ventaschamarras.netlify.app/')"
+                  data-ga-cta="Explorar - Ropa"
+                  data-ga-location="sticky_card_ropa"
+                  class="mt-8 px-6 py-3 bg-white/90 hover:bg-white text-black font-semibold rounded-full shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 active:scale-95 inline-flex items-center gap-2 cursor-pointer neon-border-yellow"
+                >
+                  <span>Explorar</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </a>
+              </div>
+            </div>
+
+            <!-- Card 5: Mocktail -->
+            <div class="sticky-card-item absolute inset-0 flex flex-col items-center justify-center pointer-events-auto">
+              <div class="relative group bg-transparent p-4 flex flex-col items-center">
+                <img
+                  src="/images/lummi/mocktail.webp"
+                  alt="Mocktail Showcase"
+                  class="w-full h-full object-contain max-h-[58vh] drop-shadow-2xl transition-transform duration-300 group-hover:scale-105"
+                />
+                <a 
+                  href="https://miguelcra85-tech.github.io/NaranGo/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onclick="trackCtaClick('Ver detalles - Mocktail', 'sticky_card_mocktail', 'https://miguelcra85-tech.github.io/NaranGo/')"
+                  data-ga-cta="Ver detalles - Mocktail"
+                  data-ga-location="sticky_card_mocktail"
+                  class="mt-8 px-6 py-3 bg-white/90 hover:bg-white text-black font-semibold rounded-full shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 active:scale-95 inline-flex items-center gap-2 cursor-pointer neon-border-purple"
+                >
+                  <span>Ver detalles</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
       <!-- Middle section with Iris Video on the right side -->
       <div class="min-h-[70vh] flex items-center justify-center lg:justify-end px-5 sm:px-8 md:px-12 py-12">
         <div id="contacto" data-reveal="200" class="flex flex-col items-center lg:items-end gap-3">
-          <a href="https://wa.me/525583335581" target="_blank" rel="noopener noreferrer" data-wobble aria-label="Contacto por WhatsApp" class="w-56 h-56 sm:w-64 sm:h-64 lg:w-80 lg:h-80 rounded-full border border-white/30 bg-transparent overflow-hidden relative flex items-center justify-center p-0 cursor-pointer shadow-[inset_0_0_30px_rgba(255,255,255,0.2),0_0_15px_rgba(255,255,255,0.05)] block transition-transform duration-300 hover:scale-105 animate-float">
+          <a 
+            href="https://wa.me/525583335581" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            onclick="trackCtaClick('Contacto por WhatsApp', 'iris_video_section', 'https://wa.me/525583335581')" 
+            data-ga-cta="Contacto por WhatsApp" 
+            data-ga-location="iris_video_section" 
+            data-wobble 
+            aria-label="Contacto por WhatsApp" 
+            class="w-56 h-56 sm:w-64 sm:h-64 lg:w-80 lg:h-80 rounded-full border border-white/30 bg-transparent overflow-hidden relative flex items-center justify-center p-0 cursor-pointer shadow-[inset_0_0_30px_rgba(255,255,255,0.2),0_0_15px_rgba(255,255,255,0.05)] block transition-transform duration-300 hover:scale-105 animate-float"
+          >
             <video 
               src="https://res.cloudinary.com/hw31kdln/video/upload/v1785731505/iris-animacion_oywnro.mp4"
               class="w-full h-full object-cover mix-blend-screen opacity-100 pointer-events-none"
@@ -196,18 +537,31 @@
           <div class="flex flex-col gap-12 md:flex-row md:items-end md:justify-between md:gap-16 w-full">
             
             <div class="w-full max-w-xl">
-              <h2 id="proyectos" data-reveal="180" class="text-5xl sm:text-6xl lg:text-7xl font-normal leading-[1.05] tracking-tight text-white drop-shadow-lg">
-                Aprende a ver<br>con brillantez.
+              <h2 id="proyectos" data-reveal="180" class="text-4xl sm:text-5xl lg:text-6xl font-normal leading-[1.08] tracking-tight text-white drop-shadow-lg">
+                Optimización constante y automatizada
               </h2>
-              <p data-reveal="320" class="mt-6 max-w-md text-sm sm:text-base text-white/80 drop-shadow-md">
-                Desde el primer boceto hasta el resultado final, Migue Strategy convierte la intención en decisiones sobre las que tu equipo puede actuar: de forma silenciosa, precisa y a gran velocidad.
+              <p data-reveal="320" class="mt-6 max-w-lg text-sm sm:text-base leading-relaxed text-white/80 drop-shadow-md">
+                Implementamos un riguroso análisis de datos para rastrear el comportamiento del usuario. Esto nos permite identificar fugas en el embudo, corregir fricciones en tiempo real y asegurar que la tienda evolucione con tu tráfico.
               </p>
               <div data-reveal="420" class="mt-8 flex flex-wrap gap-3">
-                <a href="https://res.cloudinary.com/hw31kdln/image/upload/v1783976626/ChatGPT-Image-13-jul-2026_-12_17_51-p.m._rfejqo.webp" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 rounded-full bg-white px-5 py-2.5 text-xs sm:text-sm font-medium text-black hover:bg-white/85 transition-colors duration-300">
+                <a 
+                  href="https://res.cloudinary.com/hw31kdln/image/upload/v1783976626/ChatGPT-Image-13-jul-2026_-12_17_51-p.m._rfejqo.webp" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  onclick="trackCtaClick('Ver demostración', 'section_optimization', 'cloudinary_image')"
+                  data-ga-cta="Ver demostración"
+                  data-ga-location="section_optimization"
+                  class="inline-flex items-center justify-center gap-2 rounded-full bg-white px-5 py-2.5 text-xs sm:text-sm font-medium text-black hover:bg-white/85 transition-colors duration-300"
+                >
                   Ver demostración
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
                 </a>
-                <button onclick="openTypebot(event)" class="inline-flex items-center justify-center rounded-full border border-white/30 bg-transparent shadow-[inset_0_0_15px_rgba(255,255,255,0.1)] px-5 py-2.5 text-xs sm:text-sm text-white hover:shadow-[inset_0_0_25px_rgba(255,255,255,0.2)] transition-all duration-300 cursor-pointer">
+                <button 
+                  onclick="trackCtaClick('Consulta gratuita', 'section_optimization', 'typebot'); openTypebot(event, 'section_optimization')" 
+                  data-ga-cta="Consulta gratuita"
+                  data-ga-location="section_optimization"
+                  class="inline-flex items-center justify-center rounded-full border border-white/30 bg-transparent shadow-[inset_0_0_15px_rgba(255,255,255,0.1)] px-5 py-2.5 text-xs sm:text-sm text-white hover:shadow-[inset_0_0_25px_rgba(255,255,255,0.2)] transition-all duration-300 cursor-pointer"
+                >
                   Consulta gratuita
                 </button>
               </div>
@@ -220,11 +574,11 @@
                 <div class="font-mono text-[11px] tracking-[0.15em] text-white/55 pt-1">01</div>
                 <div>
                   <div class="flex items-center gap-2">
-                    <h3 class="text-base sm:text-lg font-medium text-white">Visión en tiempo real</h3>
+                    <h3 class="text-base sm:text-lg font-medium text-white">Auditoría SEO</h3>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white/40 group-hover:text-white group-hover:translate-x-0.5 transition-all duration-300"><path d="m9 18 6-6-6-6"/></svg>
                   </div>
                   <p class="mt-1.5 text-sm leading-relaxed text-white/70">
-                    Lee el contexto en el momento y destaca lo importante antes de que lo pidas.
+                    Mejora tu rendimiento técnico y velocidad web.
                   </p>
                 </div>
               </div>
@@ -234,11 +588,11 @@
                 <div class="font-mono text-[11px] tracking-[0.15em] text-white/55 pt-1">02</div>
                 <div>
                   <div class="flex items-center gap-2">
-                    <h3 class="text-base sm:text-lg font-medium text-white">Insights por capas</h3>
+                    <h3 class="text-base sm:text-lg font-medium text-white">Mapeo de datos</h3>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white/40 group-hover:text-white group-hover:translate-x-0.5 transition-all duration-300"><path d="m9 18 6-6-6-6"/></svg>
                   </div>
                   <p class="mt-1.5 text-sm leading-relaxed text-white/70">
-                    Pasa de un esquema general a un resultado preciso sin perder el hilo.
+                    Escala el ticket promedio de tu negocio.
                   </p>
                 </div>
               </div>
@@ -248,11 +602,11 @@
                 <div class="font-mono text-[11px] tracking-[0.15em] text-white/55 pt-1">03</div>
                 <div>
                   <div class="flex items-center gap-2">
-                    <h3 class="text-base sm:text-lg font-medium text-white">Velocidad adaptativa</h3>
+                    <h3 class="text-base sm:text-lg font-medium text-white">Código robusto</h3>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white/40 group-hover:text-white group-hover:translate-x-0.5 transition-all duration-300"><path d="m9 18 6-6-6-6"/></svg>
                   </div>
                   <p class="mt-1.5 text-sm leading-relaxed text-white/70">
-                    Aprende tu ritmo y mejora en cada iteración mientras trabajas.
+                    Dale producción estable a una landing ganadora.
                   </p>
                 </div>
               </div>
@@ -262,15 +616,20 @@
         </div>
       </section>
 
-      <!-- Section Three: Migue Strategy B2B -->
-      <section class="min-h-screen supports-[height:100svh]:min-h-[100svh] flex flex-col justify-center items-center px-5 sm:px-8 md:px-12 py-24 relative">
-        <div class="w-full max-w-5xl mx-auto flex flex-col items-center justify-center text-center gap-10">
+      <!-- Section Three: El motor de conversión que necesitas -->
+      <section class="min-h-screen supports-[height:100svh]:min-h-[100svh] flex flex-col justify-between items-center px-5 sm:px-8 md:px-12 pt-24 pb-12 relative">
+        <div class="w-full max-w-5xl mx-auto flex-1 flex flex-col items-center justify-center text-center gap-10 my-auto">
           
-          <p id="nosotros" data-reveal="300" class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-medium leading-[1.3] tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-white via-white/90 to-white/40 drop-shadow-xl filter blur-[0.3px] hover:blur-0 transition-all duration-700 max-w-4xl">
-             Migue Strategy impulsa negocios B2B con agentes de IA inteligentes, creando conexiones humanas, confianza duradera y resultados que transforman prospectos en clientes activos.
-          </p>
+          <div class="flex flex-col items-center text-center gap-6 max-w-4xl mx-auto">
+            <h2 id="nosotros" data-reveal="250" class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-normal leading-[1.1] tracking-tight text-white drop-shadow-xl">
+              El motor de conversión que necesitas
+            </h2>
+            <p data-reveal="350" class="text-lg sm:text-xl md:text-2xl font-normal leading-relaxed text-transparent bg-clip-text bg-gradient-to-br from-white via-white/90 to-white/60 drop-shadow-lg max-w-3xl">
+              Diseñado para escalar sin fricciones y listo para tu negocio. Logramos elevar el ticket promedio del carrito mediante mecanismos únicos de recomendación automatizada e inteligencia artificial aplicada al retail.
+            </p>
+          </div>
 
-          <div class="flex flex-col gap-3 items-center" data-reveal="400">
+          <div class="flex flex-col gap-3 items-center" data-reveal="450">
             <span class="font-mono text-[10px] uppercase tracking-[0.15em] text-white/50">Interactúa para descubrir</span>
             
             <!-- Expandable Robot Video Box -->
@@ -301,6 +660,27 @@
           </div>
           
         </div>
+
+        <!-- Footer Bar -->
+        <footer class="w-full pt-10 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/50">
+          <div class="flex items-center gap-2">
+            <span class="font-medium text-white/70">Migue Strategy</span>
+            <span>&copy; 2026. Todos los derechos reservados.</span>
+          </div>
+          <div class="flex items-center gap-6">
+            <a href="#proyectos" class="hover:text-white transition-colors">Proyectos</a>
+            <a href="#nosotros" class="hover:text-white transition-colors">Nosotros</a>
+            <a href="#contacto" class="hover:text-white transition-colors">Contacto</a>
+            <button 
+              onclick="trackCtaClick('Consulta Gratuita', 'footer_bar', 'typebot'); openTypebot(event, 'footer_bar')" 
+              data-ga-cta="Consulta Gratuita"
+              data-ga-location="footer_bar"
+              class="hover:text-white transition-colors cursor-pointer"
+            >
+              Consulta Gratuita
+            </button>
+          </div>
+        </footer>
       </section>
     </main>
   </div>
@@ -575,11 +955,118 @@
         el.classList.add('transition-transform', 'duration-300', 'hover:scale-105');
       });
     })();
+
+    // 6. Skiper 17 StickyCard_002 with GSAP ScrollTrigger + Lenis
+    (function setupStickyCard002() {
+      // Setup Lenis Smooth Scrolling
+      let lenis = null;
+      if (typeof Lenis !== 'undefined') {
+        lenis = new Lenis({
+          duration: 1.2,
+          easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+          smoothWheel: true,
+        });
+
+        if (typeof ScrollTrigger !== 'undefined' && typeof gsap !== 'undefined') {
+          lenis.on('scroll', ScrollTrigger.update);
+          gsap.ticker.add((time) => {
+            lenis.raf(time * 1000);
+          });
+          gsap.ticker.lagSmoothing(0);
+        } else {
+          function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+          }
+          requestAnimationFrame(raf);
+        }
+      }
+
+      // Setup GSAP Sticky Cards Animation
+      if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+      gsap.registerPlugin(ScrollTrigger);
+
+      const container = document.getElementById('sticky-carousel');
+      const stickyCards = document.querySelector('.sticky-cards');
+      const cardElements = document.querySelectorAll('.sticky-card-item');
+      const totalCards = cardElements.length;
+
+      if (!container || !stickyCards || totalCards === 0) return;
+
+      gsap.set(cardElements[0], { y: "0%", scale: 1, rotation: 0, opacity: 1 });
+
+      for (let i = 1; i < totalCards; i++) {
+        if (!cardElements[i]) continue;
+        gsap.set(cardElements[i], { y: "120%", scale: 1, rotation: 0, opacity: 0 });
+      }
+
+      const totalSteps = totalCards - 1;
+      const stepDuration = 1.6;
+      const dwellDuration = 0.5; // Espacio de scroll para apreciar el botón y tarjeta actual antes de que entre la siguiente
+      const animDuration = 1.1;
+
+      const scrollTimeline = gsap.timeline({
+        scrollTrigger: {
+          trigger: stickyCards,
+          start: "top top",
+          end: () => `+=${window.innerHeight * totalSteps * 1.35}`,
+          pin: true,
+          scrub: 0.6,
+          pinSpacing: true,
+        },
+      });
+
+      for (let i = 0; i < totalSteps; i++) {
+        const currentCard = cardElements[i];
+        const nextCard = cardElements[i + 1];
+        if (!currentCard || !nextCard) continue;
+
+        const startTime = i * stepDuration;
+        const transitionStart = startTime + dwellDuration;
+
+        // La tarjeta actual se mantiene limpia durante el dwell, luego escala y atenúa suavemente
+        scrollTimeline.to(
+          currentCard,
+          {
+            scale: 0.82,
+            rotation: 3,
+            opacity: 0.25,
+            duration: animDuration,
+            ease: "power1.inOut",
+          },
+          transitionStart
+        );
+
+        // La siguiente tarjeta parte con margen inferior (120% y transparente), evitando que se pegue al botón
+        scrollTimeline.fromTo(
+          nextCard,
+          {
+            y: "120%",
+            opacity: 0,
+          },
+          {
+            y: "0%",
+            opacity: 1,
+            duration: animDuration,
+            ease: "power1.out",
+          },
+          transitionStart
+        );
+      }
+
+      const resizeObserver = new ResizeObserver(() => {
+        ScrollTrigger.refresh();
+      });
+
+      if (container) {
+        resizeObserver.observe(container);
+      }
+    })();
   </script>
 
-  <!-- Typebot Chatbot Integration -->
+  <!-- Typebot Chatbot Integration with GA4 Funnel & Completion Tracking -->
   <script type="module">
-    import Typebot from 'https://cdn.jsdelivr.net/npm/@typebot.io/js@0/dist/web.js'
+    import Typebot from 'https://cdn.jsdelivr.net/npm/@typebot.io/js@0/dist/web.js';
 
     const instance = Typebot.initBubble({
       typebot: "lead-generation-14pfxu6",
@@ -592,11 +1079,35 @@
           backgroundColor: "#1D1D1D",
           customIconSrc: "https://s3.typebotstorage.com/public/workspaces/cmsj91idd00000ai1l144bags/typebots/pcgz6xaqcdhsj5qk414pfxu6/bubble-icon?v=1786146993938"
         }
+      },
+      onInit: () => {
+        // Chatbot listo en página
+      },
+      onNewInputBlock: (inputBlock) => {
+        if (window.typebotTracking) {
+          window.typebotTracking.trackStep({ type: 'input_block', id: inputBlock?.id });
+        }
+      },
+      onAnswer: (answer) => {
+        if (window.typebotTracking) {
+          window.typebotTracking.trackStep({ type: 'answer', value: answer?.value });
+        }
+      },
+      onEnd: () => {
+        if (window.typebotTracking) {
+          window.typebotTracking.trackCompletion();
+        }
       }
     });
 
-    window.openTypebot = function(e) {
+    window.openTypebot = function(e, sourceLocation = 'button') {
       if (e && e.preventDefault) e.preventDefault();
+      
+      // Registrar inicio en GA4
+      if (window.typebotTracking) {
+        window.typebotTracking.trackStart(sourceLocation);
+      }
+
       if (instance && typeof instance.open === 'function') {
         instance.open();
       } else if (Typebot && typeof Typebot.open === 'function') {
