@@ -85,8 +85,12 @@ const StickyCard002 = ({
         );
       }
 
+      let resizeRaf: number | null = null;
       const resizeObserver = new ResizeObserver(() => {
-        ScrollTrigger.refresh();
+        if (resizeRaf) cancelAnimationFrame(resizeRaf);
+        resizeRaf = requestAnimationFrame(() => {
+          ScrollTrigger.refresh();
+        });
       });
 
       if (container.current) {
@@ -94,6 +98,7 @@ const StickyCard002 = ({
       }
 
       return () => {
+        if (resizeRaf) cancelAnimationFrame(resizeRaf);
         resizeObserver.disconnect();
         scrollTimeline.kill();
         ScrollTrigger.getAll().forEach((trigger) => trigger.kill());

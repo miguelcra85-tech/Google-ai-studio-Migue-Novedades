@@ -4,6 +4,39 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <!-- Manejo preventivo de ResizeObserver para evitar loop notifications no deseadas -->
+  <script>
+    (function() {
+      const isResizeObserverError = function(msg) {
+        return typeof msg === 'string' && (
+          msg.includes('ResizeObserver loop completed with undelivered notifications') ||
+          msg.includes('ResizeObserver loop limit exceeded')
+        );
+      };
+
+      window.addEventListener('error', function(event) {
+        if (isResizeObserverError(event?.message)) {
+          event.stopImmediatePropagation();
+          event.preventDefault();
+          return false;
+        }
+      }, true);
+
+      if (typeof window !== 'undefined' && window.ResizeObserver) {
+        const NativeResizeObserver = window.ResizeObserver;
+        window.ResizeObserver = class SafeResizeObserver extends NativeResizeObserver {
+          constructor(callback) {
+            super((entries, observer) => {
+              window.requestAnimationFrame(() => {
+                callback(entries, observer);
+              });
+            });
+          }
+        };
+      }
+    })();
+  </script>
+
   <!-- Google tag (gtag.js) - Google Analytics 4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
   <script>
@@ -395,15 +428,18 @@
                   height="400"
                   class="w-full h-full object-contain max-h-[58vh] drop-shadow-2xl transition-transform duration-300 group-hover:scale-105"
                 />
-                <button 
-                  onclick="trackCtaClick('Ver producto - Ecommerce', 'sticky_card_ecommerce', 'typebot'); openTypebot(event, 'sticky_card_ecommerce')"
+                <a 
+                  href="https://social-media-migue.netlify.app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onclick="trackCtaClick('Ver producto - Ecommerce', 'sticky_card_ecommerce', 'https://social-media-migue.netlify.app/')"
                   data-ga-cta="Ver producto - Ecommerce"
                   data-ga-location="sticky_card_ecommerce"
-                  class="mt-8 px-6 py-3 bg-white/90 hover:bg-white text-black font-semibold rounded-full shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-2 cursor-pointer neon-border-blue"
+                  class="mt-8 px-6 py-3 bg-white/90 hover:bg-white text-black font-semibold rounded-full shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 active:scale-95 inline-flex items-center gap-2 cursor-pointer neon-border-blue"
                 >
                   <span>Ver producto</span>
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-                </button>
+                </a>
               </div>
             </div>
 
@@ -418,15 +454,18 @@
                   height="400"
                   class="w-full h-full object-contain max-h-[58vh] drop-shadow-2xl transition-transform duration-300 group-hover:scale-105"
                 />
-                <button 
-                  onclick="trackCtaClick('Explorar - Dulces', 'sticky_card_dulces', 'typebot'); openTypebot(event, 'sticky_card_dulces')"
+                <a 
+                  href="https://koreansweets.netlify.app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onclick="trackCtaClick('Explorar - Dulces', 'sticky_card_dulces', 'https://koreansweets.netlify.app/')"
                   data-ga-cta="Explorar - Dulces"
                   data-ga-location="sticky_card_dulces"
-                  class="mt-8 px-6 py-3 bg-white/90 hover:bg-white text-black font-semibold rounded-full shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-2 cursor-pointer neon-border-pink"
+                  class="mt-8 px-6 py-3 bg-white/90 hover:bg-white text-black font-semibold rounded-full shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 active:scale-95 inline-flex items-center gap-2 cursor-pointer neon-border-pink"
                 >
                   <span>Explorar</span>
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-                </button>
+                </a>
               </div>
             </div>
 
@@ -1069,8 +1108,14 @@
         );
       }
 
+      let resizeRaf = null;
       const resizeObserver = new ResizeObserver(() => {
-        ScrollTrigger.refresh();
+        if (resizeRaf) cancelAnimationFrame(resizeRaf);
+        resizeRaf = requestAnimationFrame(() => {
+          if (typeof ScrollTrigger !== 'undefined' && ScrollTrigger.refresh) {
+            ScrollTrigger.refresh();
+          }
+        });
       });
 
       if (container) {

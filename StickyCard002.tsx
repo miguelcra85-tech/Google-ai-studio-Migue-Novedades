@@ -103,8 +103,12 @@ const StickyCard002 = ({
         );
       }
 
+      let resizeRaf: number | null = null;
       const resizeObserver = new ResizeObserver(() => {
-        ScrollTrigger.refresh();
+        if (resizeRaf) cancelAnimationFrame(resizeRaf);
+        resizeRaf = requestAnimationFrame(() => {
+          ScrollTrigger.refresh();
+        });
       });
 
       if (container.current) {
@@ -112,6 +116,7 @@ const StickyCard002 = ({
       }
 
       return () => {
+        if (resizeRaf) cancelAnimationFrame(resizeRaf);
         resizeObserver.disconnect();
         scrollTimeline.kill();
         ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
@@ -240,6 +245,7 @@ const Skiper17 = () => {
       image: "https://ik.imagekit.io/z3dmv3w9f/ecommece.webp",
       alt: "E-commerce Showcase",
       buttonText: "Ver producto",
+      href: "https://social-media-migue.netlify.app/",
       buttonClassName: "neon-border-blue border-2 border-[#00f0ff] shadow-[0_0_15px_rgba(0,240,255,0.65),inset_0_0_8px_rgba(0,240,255,0.25)] hover:shadow-[0_0_25px_rgba(0,240,255,0.9),inset_0_0_12px_rgba(0,240,255,0.4)]",
     },
     {
@@ -247,6 +253,7 @@ const Skiper17 = () => {
       image: "https://ik.imagekit.io/z3dmv3w9f/amazon.webp",
       alt: "Amazon Product",
       buttonText: "Explorar",
+      href: "https://koreansweets.netlify.app/",
       buttonClassName: "neon-border-pink border-2 border-[#ff2d92] shadow-[0_0_15px_rgba(255,45,146,0.65),inset_0_0_8px_rgba(255,45,146,0.25)] hover:shadow-[0_0_25px_rgba(255,45,146,0.9),inset_0_0_12px_rgba(255,45,146,0.4)]",
     },
     {
