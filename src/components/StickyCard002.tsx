@@ -169,7 +169,7 @@ const Skiper17 = () => {
     },
     {
       id: 6,
-      image: "/images/lummi/resort.webp",
+      image: "./images/lummi/resort.webp",
       alt: "Stitch Impulso Maya Experience",
     },
   ];

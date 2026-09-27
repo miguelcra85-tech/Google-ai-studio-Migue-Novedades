@@ -282,7 +282,7 @@ const Skiper17 = () => {
     },
     {
       id: 6,
-      image: "/images/lummi/resort.webp",
+      image: "./images/lummi/resort.webp",
       alt: "Stitch Impulso Maya Experience",
       buttonText: "Descubre",
       href: "https://miguelcra85-tech.github.io/stitch_impulso_maya_experience/",
