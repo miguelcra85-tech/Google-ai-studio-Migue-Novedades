@@ -280,6 +280,14 @@ const Skiper17 = () => {
       href: "https://miguelcra85-tech.github.io/NaranGo/",
       buttonClassName: "neon-border-purple border-2 border-[#b026ff] shadow-[0_0_15px_rgba(176,38,255,0.65),inset_0_0_8px_rgba(176,38,255,0.25)] hover:shadow-[0_0_25px_rgba(176,38,255,0.9),inset_0_0_12px_rgba(176,38,255,0.4)]",
     },
+    {
+      id: 6,
+      image: "/images/lummi/resort.webp",
+      alt: "Stitch Impulso Maya Experience",
+      buttonText: "Descubre",
+      href: "https://miguelcra85-tech.github.io/stitch_impulso_maya_experience/",
+      buttonClassName: "neon-border-cyan border-2 border-[#00f0ff] shadow-[0_0_15px_rgba(0,240,255,0.65),inset_0_0_8px_rgba(0,240,255,0.25)] hover:shadow-[0_0_25px_rgba(0,240,255,0.9),inset_0_0_12px_rgba(0,240,255,0.4)]",
+    },
   ];
 
   return (

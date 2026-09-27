@@ -167,6 +167,11 @@ const Skiper17 = () => {
       image: "https://ik.imagekit.io/z3dmv3w9f/mocktail.webp",
       alt: "Mocktail refrescante",
     },
+    {
+      id: 6,
+      image: "/images/lummi/resort.webp",
+      alt: "Stitch Impulso Maya Experience",
+    },
   ];
 
   return (
