@@ -1,0 +1,8 @@
+{
+  "name": "Migue Strategy — Sitio Web Estático",
+  "description": "Sitio web estático puro (HTML5, CSS3 y Vanilla JavaScript) para Migue Strategy, optimizado para GitHub Pages.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
