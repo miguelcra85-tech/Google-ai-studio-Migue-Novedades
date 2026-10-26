@@ -58,8 +58,8 @@ export class ScrollVideoComponent implements AfterViewInit, OnDestroy {
 
     for (let i = 1; i <= this.totalFrames; i++) {
       const img = new Image();
-      // Ensure exact relative path as requested: ./images/images-hero/${i}.webp
-      img.src = `./images/images-hero/${i}.webp`;
+      const imagePath = `/images/images-hero/${i}.webp`;
+      img.src = imagePath;
 
       img.onload = () => {
         this.loadedCount.update(c => c + 1);
@@ -78,10 +78,8 @@ export class ScrollVideoComponent implements AfterViewInit, OnDestroy {
       };
 
       img.onerror = () => {
-        // Fallback in case host resolves without leading ./
-        if (img.src.includes('./images/')) {
-          img.src = `images/images-hero/${i}.webp`;
-        }
+        // public/ assets are served at the site root, so keep the path anchored there.
+        img.src = imagePath;
       };
 
       // Check if already cached/completed synchronously
