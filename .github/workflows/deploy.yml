@@ -35,8 +35,7 @@ jobs:
         run: npm ci
 
       - name: Build project
-        # Configuramos la ruta base para que funcione en GitHub Pages (username.github.io/repo-name)
-        run: bun run build -- --base-href /${{ github.event.repository.name }}/
+        run: npm run build
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
