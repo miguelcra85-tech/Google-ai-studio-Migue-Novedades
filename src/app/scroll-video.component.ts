@@ -8,7 +8,7 @@ import { isPlatformBrowser } from '@angular/common';
     '(window:resize)': 'onResize()'
   },
   template: `
-    <div class="fixed inset-0 z-0 bg-black overflow-hidden pointer-events-none select-none">
+    <div class="fixed inset-0 z-0 bg-[#0a0a0a] overflow-hidden pointer-events-none select-none">
       <canvas 
         #canvas 
         class="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
@@ -24,6 +24,7 @@ export class ScrollVideoComponent implements AfterViewInit, OnDestroy {
 
   readonly totalFrames = 120;
   isLoaded = signal(false);
+  loadedCount = signal(0);
 
   private platformId = inject(PLATFORM_ID);
   private ngZone = inject(NgZone);
@@ -46,37 +47,89 @@ export class ScrollVideoComponent implements AfterViewInit, OnDestroy {
 
   onResize() {
     this.lastDrawnIndex = -1;
-    const currentImg = this.getCurrentImage();
-    if (currentImg && currentImg.complete && currentImg.naturalWidth > 0) {
+    const currentImg = this.getBestLoadedImage(this.getCurrentFrameIndex());
+    if (currentImg) {
       this.drawFrame(currentImg);
     }
   }
 
   private preloadImages() {
+    let initialFrameDrawn = false;
+
     for (let i = 1; i <= this.totalFrames; i++) {
       const img = new Image();
-      img.src = `images/images-hero/${i}.webp`;
+      // Ensure exact relative path as requested: ./images/images-hero/${i}.webp
+      img.src = `./images/images-hero/${i}.webp`;
+
       img.onload = () => {
-        if (i === 1) {
+        this.loadedCount.update(c => c + 1);
+
+        // As soon as the first frame is loaded, render it immediately
+        if (i === 1 && !initialFrameDrawn) {
+          initialFrameDrawn = true;
+          this.isLoaded.set(true);
+          this.drawFrame(img);
+        } else if (!initialFrameDrawn && img.naturalWidth > 0) {
+          // If another early frame arrives before frame 1, paint it to eliminate blank canvas
+          initialFrameDrawn = true;
           this.isLoaded.set(true);
           this.drawFrame(img);
         }
       };
-      if (img.complete && i === 1 && img.naturalWidth > 0) {
-        this.isLoaded.set(true);
-        this.drawFrame(img);
+
+      img.onerror = () => {
+        // Fallback in case host resolves without leading ./
+        if (img.src.includes('./images/')) {
+          img.src = `images/images-hero/${i}.webp`;
+        }
+      };
+
+      // Check if already cached/completed synchronously
+      if (img.complete && img.naturalWidth > 0) {
+        this.loadedCount.update(c => c + 1);
+        if (i === 1 && !initialFrameDrawn) {
+          initialFrameDrawn = true;
+          this.isLoaded.set(true);
+          this.drawFrame(img);
+        }
       }
+
       this.images.push(img);
     }
   }
 
-  private getCurrentImage(): HTMLImageElement | null {
-    if (this.images.length === 0) return null;
-    const frameIndex = Math.min(
+  private getCurrentFrameIndex(): number {
+    return Math.min(
       this.totalFrames - 1,
       Math.max(0, Math.floor(this.smoothedProgress * (this.totalFrames - 1)))
     );
-    return this.images[frameIndex] || this.images[0] || null;
+  }
+
+  private getBestLoadedImage(preferredIndex: number): HTMLImageElement | null {
+    if (this.images.length === 0) return null;
+
+    // 1. Try preferred index
+    const target = this.images[preferredIndex];
+    if (target && target.complete && target.naturalWidth > 0) {
+      return target;
+    }
+
+    // 2. Search nearest loaded neighbor
+    for (let offset = 1; offset < this.totalFrames; offset++) {
+      const prev = this.images[preferredIndex - offset];
+      if (prev && prev.complete && prev.naturalWidth > 0) return prev;
+
+      const next = this.images[preferredIndex + offset];
+      if (next && next.complete && next.naturalWidth > 0) return next;
+    }
+
+    // 3. Fallback to first frame if available
+    const first = this.images[0];
+    if (first && first.complete && first.naturalWidth > 0) {
+      return first;
+    }
+
+    return null;
   }
 
   private startLoop() {
@@ -98,33 +151,33 @@ export class ScrollVideoComponent implements AfterViewInit, OnDestroy {
     // Smooth Lerp animation loop
     this.smoothedProgress += (this.targetProgress - this.smoothedProgress) * 0.1;
 
-    const frameIndex = Math.min(
-      this.totalFrames - 1,
-      Math.max(0, Math.floor(this.smoothedProgress * (this.totalFrames - 1)))
-    );
+    const frameIndex = this.getCurrentFrameIndex();
+    const img = this.getBestLoadedImage(frameIndex);
 
-    const img = this.images[frameIndex];
-    if (img && img.complete && img.naturalWidth > 0) {
-      if (frameIndex !== this.lastDrawnIndex) {
-        this.drawFrame(img);
-        this.lastDrawnIndex = frameIndex;
-        if (!this.isLoaded()) {
-          this.isLoaded.set(true);
-        }
+    if (img && frameIndex !== this.lastDrawnIndex) {
+      this.drawFrame(img);
+      this.lastDrawnIndex = frameIndex;
+      if (!this.isLoaded()) {
+        this.isLoaded.set(true);
       }
     }
   }
 
-  private updateCanvasDimensions(canvas: HTMLCanvasElement) {
+  private updateCanvasDimensions(canvas: HTMLCanvasElement): boolean {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const rect = canvas.getBoundingClientRect();
-    const targetW = Math.floor(rect.width * dpr);
-    const targetH = Math.floor(rect.height * dpr);
+
+    // Ensure fallback dimensions if layout pass hasn't completed rect values
+    const targetW = Math.floor((rect.width || window.innerWidth) * dpr);
+    const targetH = Math.floor((rect.height || window.innerHeight) * dpr);
+
+    if (targetW === 0 || targetH === 0) return false;
 
     if (canvas.width !== targetW || canvas.height !== targetH) {
       canvas.width = targetW;
       canvas.height = targetH;
     }
+    return true;
   }
 
   drawFrame(img: HTMLImageElement) {
@@ -133,14 +186,16 @@ export class ScrollVideoComponent implements AfterViewInit, OnDestroy {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    if (!img.complete || img.naturalWidth === 0) return;
+
     this.updateCanvasDimensions(canvas);
 
     const canvasWidth = canvas.width;
     const canvasHeight = canvas.height;
     if (!canvasWidth || !canvasHeight) return;
 
-    const imgWidth = img.naturalWidth || img.width;
-    const imgHeight = img.naturalHeight || img.height;
+    const imgWidth = img.naturalWidth;
+    const imgHeight = img.naturalHeight;
     if (!imgWidth || !imgHeight) return;
 
     const imgRatio = imgWidth / imgHeight;
