@@ -1,8 +1,14 @@
+<<<<<<< HEAD
 import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, PLATFORM_ID, inject, ChangeDetectionStrategy, NgZone, signal, OnInit } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 
 const MAX_CANVAS_DIMENSION = 2560;
 
+=======
+import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, PLATFORM_ID, inject, ChangeDetectionStrategy, NgZone, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+
+>>>>>>> 9de23772c612ac3a5a2184a20491b8bb29bda5c2
 @Component({
   selector: 'app-scroll-video',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -10,6 +16,7 @@ const MAX_CANVAS_DIMENSION = 2560;
     '(window:resize)': 'onResize()'
   },
   template: `
+<<<<<<< HEAD
     <div class="fixed inset-0 z-0 bg-[#0a0a0a] overflow-hidden pointer-events-none select-none">
       <canvas 
         #canvas 
@@ -22,6 +29,21 @@ const MAX_CANVAS_DIMENSION = 2560;
   `
 })
 export class ScrollVideoComponent implements AfterViewInit, OnDestroy, OnInit {
+=======
+    <div class="fixed inset-0 z-0 overflow-hidden select-none bg-[#0a0a0a]">
+      <canvas
+        #canvas
+        class="block h-full w-full object-cover transition-opacity duration-700"
+        [class.opacity-100]="isLoaded()"
+        [class.opacity-0]="!isLoaded()"
+        aria-label="Hero background video"
+      ></canvas>
+      <div class="absolute inset-0 z-10 bg-gradient-to-b from-black/25 via-transparent to-black/40 pointer-events-none"></div>
+    </div>
+  `
+})
+export class ScrollVideoComponent implements AfterViewInit, OnDestroy {
+>>>>>>> 9de23772c612ac3a5a2184a20491b8bb29bda5c2
   @ViewChild('canvas') canvasRef!: ElementRef<HTMLCanvasElement>;
 
   readonly totalFrames = 120;
@@ -36,15 +58,22 @@ export class ScrollVideoComponent implements AfterViewInit, OnDestroy, OnInit {
   private targetProgress = 0;
   private smoothedProgress = 0;
   private lastDrawnIndex = -1;
+<<<<<<< HEAD
   private allImagesFailed = false;
 
   ngOnInit() {
     // Initialize any component setup needed on change detection cycles
   }
+=======
+>>>>>>> 9de23772c612ac3a5a2184a20491b8bb29bda5c2
 
   ngAfterViewInit() {
     if (!isPlatformBrowser(this.platformId)) return;
 
+<<<<<<< HEAD
+=======
+    this.ensureCanvasDimensions();
+>>>>>>> 9de23772c612ac3a5a2184a20491b8bb29bda5c2
     this.preloadImages();
 
     this.ngZone.runOutsideAngular(() => {
@@ -53,14 +82,21 @@ export class ScrollVideoComponent implements AfterViewInit, OnDestroy, OnInit {
   }
 
   onResize() {
+<<<<<<< HEAD
     this.lastDrawnIndex = -1;
     if (this.allImagesFailed) return;
+=======
+    this.ensureCanvasDimensions();
+    this.lastDrawnIndex = -1;
+
+>>>>>>> 9de23772c612ac3a5a2184a20491b8bb29bda5c2
     const currentImg = this.getBestLoadedImage(this.getCurrentFrameIndex());
     if (currentImg) {
       this.drawFrame(currentImg);
     }
   }
 
+<<<<<<< HEAD
   private preloadImages() {
     // Multiple CDN fallbacks for hero images
     const cdnPaths = [
@@ -136,6 +172,114 @@ export class ScrollVideoComponent implements AfterViewInit, OnDestroy, OnInit {
     // If ALL images failed to load across all paths, mark for graceful degradation
     if (totalLoadErrors >= this.totalFrames * cdnPaths.length) {
       this.allImagesFailed = true;
+=======
+  private ensureCanvasDimensions() {
+    const canvas = this.canvasRef?.nativeElement;
+    if (!canvas) return;
+
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const targetW = Math.max(1, Math.floor((canvas.clientWidth || window.innerWidth) * dpr));
+    const targetH = Math.max(1, Math.floor((canvas.clientHeight || window.innerHeight) * dpr));
+
+    if (canvas.width !== targetW || canvas.height !== targetH) {
+      canvas.width = targetW;
+      canvas.height = targetH;
+    }
+
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+  }
+
+  private forceFrameOneRender() {
+    const canvas = this.canvasRef?.nativeElement;
+    if (!canvas) return;
+
+    const renderFallback = (img: HTMLImageElement) => {
+      this.images[0] = img;
+      this.isLoaded.set(true);
+      this.drawFrame(img);
+    };
+
+    const primary = new Image();
+    primary.decoding = 'async';
+    primary.onload = () => renderFallback(primary);
+    primary.onerror = () => {
+      const fallback = new Image();
+      fallback.decoding = 'async';
+      fallback.onload = () => renderFallback(fallback);
+      fallback.onerror = () => {
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#0a0a0a';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        this.isLoaded.set(true);
+      };
+      fallback.src = './images/images-hero/1.webp';
+    };
+    primary.src = './assets/images-hero/1.webp';
+  }
+
+  private preloadImages() {
+    this.images = new Array(this.totalFrames);
+    let firstFrameRendered = false;
+
+    const renderInitialFrame = (img: HTMLImageElement) => {
+      if (firstFrameRendered) return;
+      firstFrameRendered = true;
+      this.ensureCanvasDimensions();
+      this.isLoaded.set(true);
+      this.drawFrame(img);
+    };
+
+    for (let i = 1; i <= this.totalFrames; i++) {
+      const primaryPath = `./images/images-hero/${i}.webp`;
+      const fallbackPath = `./assets/images-hero/${i}.webp`;
+
+      const img = new Image();
+      img.decoding = 'async';
+
+      img.onload = () => {
+        this.loadedCount.update(c => c + 1);
+        this.images[i - 1] = img;
+
+        if (i === 1 || !firstFrameRendered) {
+          renderInitialFrame(img);
+        }
+      };
+
+      img.onerror = () => {
+        const backup = new Image();
+        backup.decoding = 'async';
+
+        backup.onload = () => {
+          this.loadedCount.update(c => c + 1);
+          this.images[i - 1] = backup;
+
+          if (i === 1 || !firstFrameRendered) {
+            renderInitialFrame(backup);
+          }
+        };
+
+        backup.onerror = () => {
+          if (i === 1 && !firstFrameRendered) {
+            this.forceFrameOneRender();
+          }
+        };
+
+        backup.src = fallbackPath;
+      };
+
+      if (img.complete && img.naturalWidth > 0) {
+        this.loadedCount.update(c => c + 1);
+        this.images[i - 1] = img;
+        if (i === 1 || !firstFrameRendered) {
+          renderInitialFrame(img);
+        }
+      } else {
+        img.src = primaryPath;
+      }
+>>>>>>> 9de23772c612ac3a5a2184a20491b8bb29bda5c2
     }
   }
 
@@ -149,13 +293,19 @@ export class ScrollVideoComponent implements AfterViewInit, OnDestroy, OnInit {
   private getBestLoadedImage(preferredIndex: number): HTMLImageElement | null {
     if (this.images.length === 0) return null;
 
+<<<<<<< HEAD
     // 1. Try preferred index
+=======
+>>>>>>> 9de23772c612ac3a5a2184a20491b8bb29bda5c2
     const target = this.images[preferredIndex];
     if (target && target.complete && target.naturalWidth > 0) {
       return target;
     }
 
+<<<<<<< HEAD
     // 2. Search nearest loaded neighbor
+=======
+>>>>>>> 9de23772c612ac3a5a2184a20491b8bb29bda5c2
     for (let offset = 1; offset < this.totalFrames; offset++) {
       const prev = this.images[preferredIndex - offset];
       if (prev && prev.complete && prev.naturalWidth > 0) return prev;
@@ -164,7 +314,10 @@ export class ScrollVideoComponent implements AfterViewInit, OnDestroy, OnInit {
       if (next && next.complete && next.naturalWidth > 0) return next;
     }
 
+<<<<<<< HEAD
     // 3. Fallback to first frame if available
+=======
+>>>>>>> 9de23772c612ac3a5a2184a20491b8bb29bda5c2
     const first = this.images[0];
     if (first && first.complete && first.naturalWidth > 0) {
       return first;
@@ -188,8 +341,11 @@ export class ScrollVideoComponent implements AfterViewInit, OnDestroy, OnInit {
     const maxScroll = Math.max(1, scrollHeight - innerHeight);
 
     this.targetProgress = Math.max(0, Math.min(1, scrollY / maxScroll));
+<<<<<<< HEAD
 
     // Smooth Lerp animation loop
+=======
+>>>>>>> 9de23772c612ac3a5a2184a20491b8bb29bda5c2
     this.smoothedProgress += (this.targetProgress - this.smoothedProgress) * 0.1;
 
     const frameIndex = this.getCurrentFrameIndex();
@@ -208,6 +364,7 @@ export class ScrollVideoComponent implements AfterViewInit, OnDestroy, OnInit {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const rect = canvas.getBoundingClientRect();
 
+<<<<<<< HEAD
     // Ensure fallback dimensions if layout pass hasn't completed rect values
     const targetW = Math.floor((rect.width || window.innerWidth) * dpr);
     const targetH = Math.floor((rect.height || window.innerHeight) * dpr);
@@ -221,6 +378,16 @@ export class ScrollVideoComponent implements AfterViewInit, OnDestroy, OnInit {
     if (canvas.width !== maxW || canvas.height !== maxH) {
       canvas.width = maxW;
       canvas.height = maxH;
+=======
+    const targetW = Math.max(1, Math.floor((rect.width || window.innerWidth || canvas.clientWidth) * dpr));
+    const targetH = Math.max(1, Math.floor((rect.height || window.innerHeight || canvas.clientHeight) * dpr));
+
+    if (targetW === 0 || targetH === 0) return false;
+
+    if (canvas.width !== targetW || canvas.height !== targetH) {
+      canvas.width = targetW;
+      canvas.height = targetH;
+>>>>>>> 9de23772c612ac3a5a2184a20491b8bb29bda5c2
     }
     return true;
   }
@@ -228,10 +395,23 @@ export class ScrollVideoComponent implements AfterViewInit, OnDestroy, OnInit {
   drawFrame(img: HTMLImageElement) {
     const canvas = this.canvasRef?.nativeElement;
     if (!canvas) return;
+<<<<<<< HEAD
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     if (!img.complete || img.naturalWidth === 0) return;
+=======
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    if (!img || !img.complete || img.naturalWidth === 0) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#0a0a0a';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      return;
+    }
+>>>>>>> 9de23772c612ac3a5a2184a20491b8bb29bda5c2
 
     this.updateCanvasDimensions(canvas);
 
@@ -251,7 +431,10 @@ export class ScrollVideoComponent implements AfterViewInit, OnDestroy, OnInit {
     let x: number;
     let y: number;
 
+<<<<<<< HEAD
     // object-cover logic
+=======
+>>>>>>> 9de23772c612ac3a5a2184a20491b8bb29bda5c2
     if (canvasRatio > imgRatio) {
       drawWidth = canvasWidth;
       drawHeight = canvasWidth / imgRatio;
