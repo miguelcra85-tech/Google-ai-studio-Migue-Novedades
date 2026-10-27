@@ -1,0 +1,18 @@
+{
+  "name": "migue-strategy-static-site",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build": "node build-script.js",
+    "lint": "echo 'No lint needed for static site'"
+  },
+  "dependencies": {
+    "@gsap/react": "^2.1.2",
+    "express": "^5.1.0",
+    "gsap": "^3.15.0",
+    "lenis": "^1.3.26"
+  }
+}
