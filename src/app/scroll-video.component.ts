@@ -8,14 +8,15 @@ import { isPlatformBrowser } from '@angular/common';
     '(window:resize)': 'onResize()'
   },
   template: `
-    <div class="fixed inset-0 z-0 bg-[#0a0a0a] overflow-hidden pointer-events-none select-none">
-      <canvas 
-        #canvas 
-        class="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
+    <div class="fixed inset-0 z-0 overflow-hidden select-none bg-[#0a0a0a]">
+      <canvas
+        #canvas
+        class="block h-full w-full object-cover transition-opacity duration-700"
         [class.opacity-100]="isLoaded()"
         [class.opacity-0]="!isLoaded()"
+        aria-label="Hero background video"
       ></canvas>
-      <div class="absolute inset-0 bg-gradient-to-b from-black/25 via-transparent to-black/40 pointer-events-none z-10"></div>
+      <div class="absolute inset-0 z-10 bg-gradient-to-b from-black/25 via-transparent to-black/40 pointer-events-none"></div>
     </div>
   `
 })
@@ -38,6 +39,7 @@ export class ScrollVideoComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit() {
     if (!isPlatformBrowser(this.platformId)) return;
 
+    this.ensureCanvasDimensions();
     this.preloadImages();
 
     this.ngZone.runOutsideAngular(() => {
@@ -46,58 +48,121 @@ export class ScrollVideoComponent implements AfterViewInit, OnDestroy {
   }
 
   onResize() {
+    this.ensureCanvasDimensions();
     this.lastDrawnIndex = -1;
+
     const currentImg = this.getBestLoadedImage(this.getCurrentFrameIndex());
     if (currentImg) {
       this.drawFrame(currentImg);
     }
   }
 
+  private ensureCanvasDimensions() {
+    const canvas = this.canvasRef?.nativeElement;
+    if (!canvas) return;
+
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const targetW = Math.max(1, Math.floor((canvas.clientWidth || window.innerWidth) * dpr));
+    const targetH = Math.max(1, Math.floor((canvas.clientHeight || window.innerHeight) * dpr));
+
+    if (canvas.width !== targetW || canvas.height !== targetH) {
+      canvas.width = targetW;
+      canvas.height = targetH;
+    }
+
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+  }
+
+  private forceFrameOneRender() {
+    const canvas = this.canvasRef?.nativeElement;
+    if (!canvas) return;
+
+    const renderFallback = (img: HTMLImageElement) => {
+      this.images[0] = img;
+      this.isLoaded.set(true);
+      this.drawFrame(img);
+    };
+
+    const primary = new Image();
+    primary.decoding = 'async';
+    primary.onload = () => renderFallback(primary);
+    primary.onerror = () => {
+      const fallback = new Image();
+      fallback.decoding = 'async';
+      fallback.onload = () => renderFallback(fallback);
+      fallback.onerror = () => {
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#0a0a0a';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        this.isLoaded.set(true);
+      };
+      fallback.src = './images/images-hero/1.webp';
+    };
+    primary.src = './assets/images-hero/1.webp';
+  }
+
   private preloadImages() {
-    let initialFrameDrawn = false;
+    this.images = new Array(this.totalFrames);
+    let firstFrameRendered = false;
+
+    const renderInitialFrame = (img: HTMLImageElement) => {
+      if (firstFrameRendered) return;
+      firstFrameRendered = true;
+      this.ensureCanvasDimensions();
+      this.isLoaded.set(true);
+      this.drawFrame(img);
+    };
 
     for (let i = 1; i <= this.totalFrames; i++) {
-      const img = new Image();
       const primaryPath = `./images/images-hero/${i}.webp`;
       const fallbackPath = `./assets/images-hero/${i}.webp`;
-      let triedFallback = false;
 
-      img.src = primaryPath;
+      const img = new Image();
+      img.decoding = 'async';
 
       img.onload = () => {
         this.loadedCount.update(c => c + 1);
+        this.images[i - 1] = img;
 
-        // As soon as the first frame is loaded, render it immediately
-        if (i === 1 && !initialFrameDrawn) {
-          initialFrameDrawn = true;
-          this.isLoaded.set(true);
-          this.drawFrame(img);
-        } else if (!initialFrameDrawn && img.naturalWidth > 0) {
-          // If another early frame arrives before frame 1, paint it to eliminate blank canvas
-          initialFrameDrawn = true;
-          this.isLoaded.set(true);
-          this.drawFrame(img);
+        if (i === 1 || !firstFrameRendered) {
+          renderInitialFrame(img);
         }
       };
 
       img.onerror = () => {
-        if (!triedFallback) {
-          triedFallback = true;
-          img.src = fallbackPath;
-        }
+        const backup = new Image();
+        backup.decoding = 'async';
+
+        backup.onload = () => {
+          this.loadedCount.update(c => c + 1);
+          this.images[i - 1] = backup;
+
+          if (i === 1 || !firstFrameRendered) {
+            renderInitialFrame(backup);
+          }
+        };
+
+        backup.onerror = () => {
+          if (i === 1 && !firstFrameRendered) {
+            this.forceFrameOneRender();
+          }
+        };
+
+        backup.src = fallbackPath;
       };
 
-      // Check if already cached/completed synchronously
       if (img.complete && img.naturalWidth > 0) {
         this.loadedCount.update(c => c + 1);
-        if (i === 1 && !initialFrameDrawn) {
-          initialFrameDrawn = true;
-          this.isLoaded.set(true);
-          this.drawFrame(img);
+        this.images[i - 1] = img;
+        if (i === 1 || !firstFrameRendered) {
+          renderInitialFrame(img);
         }
+      } else {
+        img.src = primaryPath;
       }
-
-      this.images.push(img);
     }
   }
 
@@ -111,13 +176,11 @@ export class ScrollVideoComponent implements AfterViewInit, OnDestroy {
   private getBestLoadedImage(preferredIndex: number): HTMLImageElement | null {
     if (this.images.length === 0) return null;
 
-    // 1. Try preferred index
     const target = this.images[preferredIndex];
     if (target && target.complete && target.naturalWidth > 0) {
       return target;
     }
 
-    // 2. Search nearest loaded neighbor
     for (let offset = 1; offset < this.totalFrames; offset++) {
       const prev = this.images[preferredIndex - offset];
       if (prev && prev.complete && prev.naturalWidth > 0) return prev;
@@ -126,7 +189,6 @@ export class ScrollVideoComponent implements AfterViewInit, OnDestroy {
       if (next && next.complete && next.naturalWidth > 0) return next;
     }
 
-    // 3. Fallback to first frame if available
     const first = this.images[0];
     if (first && first.complete && first.naturalWidth > 0) {
       return first;
@@ -150,8 +212,6 @@ export class ScrollVideoComponent implements AfterViewInit, OnDestroy {
     const maxScroll = Math.max(1, scrollHeight - innerHeight);
 
     this.targetProgress = Math.max(0, Math.min(1, scrollY / maxScroll));
-
-    // Smooth Lerp animation loop
     this.smoothedProgress += (this.targetProgress - this.smoothedProgress) * 0.1;
 
     const frameIndex = this.getCurrentFrameIndex();
@@ -170,9 +230,8 @@ export class ScrollVideoComponent implements AfterViewInit, OnDestroy {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const rect = canvas.getBoundingClientRect();
 
-    // Ensure fallback dimensions if layout pass hasn't completed rect values
-    const targetW = Math.floor((rect.width || window.innerWidth) * dpr);
-    const targetH = Math.floor((rect.height || window.innerHeight) * dpr);
+    const targetW = Math.max(1, Math.floor((rect.width || window.innerWidth || canvas.clientWidth) * dpr));
+    const targetH = Math.max(1, Math.floor((rect.height || window.innerHeight || canvas.clientHeight) * dpr));
 
     if (targetW === 0 || targetH === 0) return false;
 
@@ -186,10 +245,16 @@ export class ScrollVideoComponent implements AfterViewInit, OnDestroy {
   drawFrame(img: HTMLImageElement) {
     const canvas = this.canvasRef?.nativeElement;
     if (!canvas) return;
+
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    if (!img.complete || img.naturalWidth === 0) return;
+    if (!img || !img.complete || img.naturalWidth === 0) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#0a0a0a';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      return;
+    }
 
     this.updateCanvasDimensions(canvas);
 
@@ -209,7 +274,6 @@ export class ScrollVideoComponent implements AfterViewInit, OnDestroy {
     let x: number;
     let y: number;
 
-    // object-cover logic
     if (canvasRatio > imgRatio) {
       drawWidth = canvasWidth;
       drawHeight = canvasWidth / imgRatio;
