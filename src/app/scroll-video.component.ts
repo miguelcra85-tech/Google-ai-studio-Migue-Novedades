@@ -57,8 +57,9 @@ export class ScrollVideoComponent implements AfterViewInit, OnDestroy {
     let initialFrameDrawn = false;
 
     for (let i = 1; i <= this.totalFrames; i++) {
-      const primaryPath = `./assets/images-hero/${i}.webp`;
-      const fallbackPath = `./images/images-hero/${i}.webp`;
+      const img = new Image();
+      const primaryPath = `./images/images-hero/${i}.webp`;
+      const fallbackPath = `./assets/images-hero/${i}.webp`;
       let triedFallback = false;
 
       img.src = primaryPath;

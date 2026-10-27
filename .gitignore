@@ -46,3 +46,6 @@ __screenshots__/
 .DS_Store
 Thumbs.db
 
+# Bun artifacts
+bun.lock*
+
