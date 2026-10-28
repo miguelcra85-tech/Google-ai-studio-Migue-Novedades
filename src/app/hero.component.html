@@ -1,0 +1,17 @@
+<div class="fixed inset-0 z-0 bg-black overflow-hidden pointer-events-none select-none">
+  <img
+    #poster
+    [src]="frameUrl(1)"
+    alt="Hero Background Poster"
+    class="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
+    [class.opacity-100]="!canvasReady"
+    [class.opacity-0]="canvasReady"
+  />
+  <canvas
+    #canvas
+    class="absolute inset-0 w-full h-full transition-opacity duration-700"
+    [class.opacity-0]="!canvasReady"
+    [class.opacity-100]="canvasReady"
+  ></canvas>
+  <div class="absolute inset-0 bg-gradient-to-b from-black/25 via-transparent to-black/40 pointer-events-none z-10"></div>
+</div>

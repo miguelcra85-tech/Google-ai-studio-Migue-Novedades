@@ -1,0 +1,39 @@
+/* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 100px;
+}
+
+@theme {
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "Inter", system-ui, sans-serif;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; filter: drop-shadow(0 0 4px rgba(255,215,0,0.5)) blur(0px) scale(1); }
+  50% { opacity: 0.3; filter: drop-shadow(0 0 12px rgba(255,215,0,0.8)) blur(0.5px) scale(1.05); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+.animate-shimmer {
+  animation: shimmer 4s linear infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
