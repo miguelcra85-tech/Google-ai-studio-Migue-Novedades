@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "build": "mkdir dist\\app\\browser 2>nul & xcopy /E /I /Y public\\* dist\\app\\browser\\ 2>nul & copy /Y index.html dist\\app\\browser\\ 2>nul & xcopy /E /I /Y public\\* dist\\ 2>nul & copy /Y index.html dist\\ 2>nul",
+    "build": "ng build && shx cp -r public/* dist/app/browser/ || true && shx cp index.html dist/app/browser/ || true && shx cp -r public/* dist/ || true && shx cp index.html dist/ || true",
     "lint": "echo 'No lint needed for static site'"
   },
   "dependencies": {
@@ -29,10 +29,11 @@
     "@angular/build": "^18.2.21",
     "@angular/cli": "^18.2.21",
     "@angular/compiler-cli": "^18.2.14",
-    "@tailwindcss/postcss": "^4.3.3",
     "@types/express": "^5.0.6",
     "postcss": "^8.5.32",
-    "tailwindcss": "^4.3.3",
-    "typescript": "5.4"
+    "tailwindcss": "^3.4.13",
+    "typescript": "5.4",
+    "autoprefixer": "^10.4.20",
+    "shx": "^0.3.4"
   }
 }
