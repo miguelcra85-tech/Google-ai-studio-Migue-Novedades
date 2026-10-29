@@ -300,6 +300,13 @@
 
   <!-- Background Scroll Canvas -->
   <div class="fixed inset-0 z-0 bg-black overflow-hidden pointer-events-none select-none">
+    <img 
+      id="hero-poster"
+      src="./images/images-hero/1.webp" 
+      alt="Hero Background Poster"
+      class="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 opacity-100"
+      onerror="this.src='./assets/images-hero/1.webp'"
+    />
     <canvas 
       id="bg-canvas" 
       class="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 opacity-0"
@@ -558,6 +565,7 @@
                   width="600"
                   height="400"
                   class="w-full h-full object-contain max-h-[58vh] drop-shadow-2xl transition-transform duration-300 group-hover:scale-105"
+                  onerror="this.onerror=null; this.src='https://miguelcra85-tech.github.io/stitch_impulso_maya_experience/assets/img/picina.webp';"
                 />
                 <a 
                   href="https://miguelcra85-tech.github.io/stitch_impulso_maya_experience/"
@@ -725,11 +733,10 @@
               <video 
                 id="robot-video"
                 src="https://res.cloudinary.com/hw31kdln/video/upload/v1785619508/Robot_transforming_with_fiber_op__202607301315_csjdmm.mp4"
-                class="absolute inset-0 w-full h-full object-cover mix-blend-screen opacity-90 transition-opacity duration-300"
-                muted
-                playsinline
-                preload="auto"
-              ></video>
+                 class="absolute inset-0 w-full h-full object-cover mix-blend-screen opacity-90 transition-opacity duration-300"
+                 playsinline
+                 preload="auto"
+               ></video>
               
               <div 
                 id="robot-icon" 
@@ -849,14 +856,24 @@
         const fallbackPath = `./assets/images-hero/${i}.webp`;
         let triedFallback = false;
 
+        function activateCanvas(loadedImg) {
+          if (initialDrawn) return;
+          initialDrawn = true;
+          isLoaded = true;
+          canvas.classList.remove('opacity-0');
+          canvas.classList.add('opacity-100');
+          const poster = document.getElementById('hero-poster');
+          if (poster) {
+            poster.classList.remove('opacity-100');
+            poster.classList.add('opacity-0');
+          }
+          drawFrame(loadedImg);
+        }
+
         img.src = primaryPath;
         img.onload = function() {
           if (!initialDrawn && (i === 1 || img.naturalWidth > 0)) {
-            initialDrawn = true;
-            isLoaded = true;
-            canvas.classList.remove('opacity-0');
-            canvas.classList.add('opacity-100');
-            drawFrame(img);
+            activateCanvas(img);
           }
         };
         img.onerror = function() {
@@ -866,11 +883,7 @@
           }
         };
         if (img.complete && !initialDrawn && img.naturalWidth > 0) {
-          initialDrawn = true;
-          isLoaded = true;
-          canvas.classList.remove('opacity-0');
-          canvas.classList.add('opacity-100');
-          drawFrame(img);
+          activateCanvas(img);
         }
         images.push(img);
       }
