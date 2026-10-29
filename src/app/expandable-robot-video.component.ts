@@ -22,10 +22,9 @@ import { animate } from 'motion';
       <video 
         #video
         src="https://res.cloudinary.com/hw31kdln/video/upload/v1785619508/Robot_transforming_with_fiber_op__202607301315_csjdmm.mp4"
-        class="absolute inset-0 w-full h-full object-cover mix-blend-screen opacity-90 transition-opacity duration-300"
-        muted
-        playsinline
-        preload="auto"
+         class="absolute inset-0 w-full h-full object-cover mix-blend-screen opacity-90 transition-opacity duration-300"
+         playsinline
+         preload="auto"
         (ended)="onVideoEnded()"
       ></video>
       
@@ -50,7 +49,8 @@ export class ExpandableRobotVideoComponent implements AfterViewInit {
     if (!isPlatformBrowser(this.platformId)) return;
     const video = this.videoRef?.nativeElement;
     if (video) {
-      video.muted = true;
+      video.muted = false;
+      video.volume = 1;
       // Preload first frame cleanly
       video.currentTime = 0;
     }

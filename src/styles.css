@@ -1,14 +1,17 @@
-/* You can add global styles to this file, and also import other style files */
-@import "tailwindcss";
+﻿@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 100px;
 }
 
-@theme {
-  --font-sans: "Inter", system-ui, sans-serif;
-  --font-mono: "Inter", system-ui, sans-serif;
+@layer base {
+  :root {
+    --font-sans: "Inter", system-ui, sans-serif;
+    --font-mono: "Inter", system-ui, sans-serif;
+  }
 }
 
 @keyframes shimmer {

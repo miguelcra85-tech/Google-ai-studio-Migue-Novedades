@@ -49,3 +49,5 @@ Thumbs.db
 # Bun artifacts
 bun.lock*
 
+
+.vercel
